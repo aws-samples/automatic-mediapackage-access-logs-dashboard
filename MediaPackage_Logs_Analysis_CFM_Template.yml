@@ -1,0 +1,773 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "CloudFormation Template - AWS MediaPackage Logs Analysis Solution."
+
+Parameters:
+
+    MediaPackageIngressLogStream:
+        Type: String
+        MinLength: "2"
+        MaxLength: "64"
+        Description: "MediaPackage ingress CloudWatch log stream."
+        Default: "/aws/MediaPackage/IngressAccessLogs"
+
+    MediaPackageEgressLogStream:
+        Type: String
+        MinLength: "2"
+        MaxLength: "64"
+        Description: "MediaPackage egress CloudWatch log stream."
+        Default: "/aws/MediaPackage/EgressAccessLogs"
+
+    KDFDeliveryStreamPrefix:
+        Type: String
+        MinLength: "2"
+        MaxLength: "64"
+        AllowedPattern: "[a-zA-Z][a-zA-Z0-9_-]*"
+        Description: "Name prefix of the Kinesis Firehose Streams for MediaPackage logs delivery to S3."
+        Default: "mediapackage-cw-logs-to-s3"
+    
+    KDFDeliveryStreamEncryptionType:
+        Type: String
+        AllowedValues: 
+            - "AWS_OWNED_CMK"
+            - "CUSTOMER_MANAGED_CMK"
+        Description: "Kinesis Firehose Streams encryption type."
+        Default: "AWS_OWNED_CMK"
+
+    KDFDeliveryStreamEncryptionKeyArn:
+        Type: String
+        Description: "Kinesis Firehose Streams KMS symmetric key ARN. Set only if encryption type='CUSTOMER_MANAGED_CMK'."
+        Default: ""    
+  
+    LambdaKDFName:
+        Type: String
+        MinLength: "2"
+        MaxLength: "64"
+        AllowedPattern: "[a-zA-Z][a-zA-Z0-9_-]*"
+        Description: "Name of the Lambda function used by Kinesis Firehose for CloudWatch Logs processing."
+        Default: "kinesis-firehose-cloudwatch-logs-processor"
+
+    S3DestinationBucket:
+        Type: String
+        Description: "S3 destination Bucket name where processed MediaPackage logs will be stored."
+    
+    S3DestinationPrefix:
+        Type: String
+        Description: "S3 destination Prefix where processed MediaPackage logs will be stored."
+        Default: "mediapackage-processed-logs"
+
+    AthenaDatabaseName:
+        Type: String
+        Description: "Athena (Glue) database name."
+        Default: "mediapackage_logs_db"
+
+    IngressTableName:
+        Type: String
+        Description: "Athena (Glue) ingress logs table name."
+        Default: "mediapackage_ingress_logs_table"
+
+    EgressTableName:
+        Type: String
+        Description: "Athena (Glue) egress logs table name."
+        Default: "mediapackage_egress_logs_table"
+    
+    KDFBufferIntervalInSeconds:
+        Type: Number
+        MinValue: "60"
+        MaxValue: "900"
+        Description: "Kinesis Firehose Buffer time (in seconds). Value between 60 and 900."
+        Default: "300"
+
+Conditions:
+
+  KDFDeliveryStreamEncryptionTypeIsCustomerManagedCMK: !Equals [!Ref KDFDeliveryStreamEncryptionType, "CUSTOMER_MANAGED_CMK"]
+
+Resources:
+
+    LambdaKDFRole:
+        Type: AWS::IAM::Role
+        Metadata:
+          cfn_nag:
+            rules_to_suppress:
+              - id: 'W28'
+                reason: "Need explicit name to give permissions"
+        Properties:
+            RoleName: !Sub ${LambdaKDFName}-role
+            Description: "Execution role of the Lambda function used by Kinesis Firehose for CloudWatch Logs processing."
+            ManagedPolicyArns:
+                - !Ref LambdaKDFPolicy
+            AssumeRolePolicyDocument:
+                Version: "2012-10-17"
+                Statement:
+                - Effect: "Allow"
+                  Principal:
+                    Service: "lambda.amazonaws.com"
+                  Action:
+                    - "sts:AssumeRole"
+
+    LambdaKDFPolicy:
+        Type: AWS::IAM::ManagedPolicy
+        Metadata:
+          cfn_nag:
+            rules_to_suppress:
+              - id: 'W28'
+                reason: "Need explicit name to give permissions"
+        Properties:
+            ManagedPolicyName: !Sub ${LambdaKDFName}-policy
+            Description: "IAM policy of the Lambda function used by Kinesis Firehose for CloudWatch Logs processing."
+            PolicyDocument:
+                Version: "2012-10-17"
+                Statement:
+                - Effect: "Allow"
+                  Action:
+                    - "logs:CreateLogStream"
+                    - "logs:PutLogEvents"
+                  Resource: !Sub "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${LambdaKDFName}:*"
+                - Effect: "Allow"
+                  Action:
+                    - "logs:CreateLogGroup"
+                  Resource: !Sub "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:*"
+    
+    LambdaKDF:
+        Type: AWS::Lambda::Function
+        Properties:
+            Description: "Lambda function used by Kinesis Firehose for CloudWatch Logs processing."
+            FunctionName: !Ref LambdaKDFName
+            Handler: index.lambda_handler
+            MemorySize: 128
+            Timeout: 300 # 5min
+            Runtime: python3.12
+            Role: !GetAtt LambdaKDFRole.Arn
+            Code:
+                ZipFile: |
+                    import base64
+                    import gzip
+                    import json
+
+
+                    def process_record(record):
+                        """
+                        Extract log events from CloudWatch Logs records.
+                        This function processes "DATA_MESSAGE" records only.
+                        Failure is sent for other record types (mainly "CONTROL_MESSAGE").
+                        
+                        Parameters
+                        ----------
+                        record (dict) - Input record sent by Cloudwatch to Kinesis Firehose.
+
+                        Returns
+                        ------
+                        record (dict) - Transformed record that contains extracted log events.
+                        """
+                        # Base64-decode and GZIP-decompress record
+                        buffer = base64.b64decode(record["data"])
+                        decompressed = gzip.decompress(buffer)
+                        data = json.loads(decompressed)
+                        # Process CW "DATA_MESSAGE" 
+                        if data["messageType"] == "DATA_MESSAGE":
+                            # Add media columns and concatenate log events messages
+                            messages = [add_media_columns(log_event["message"]) 
+                                        for log_event in data["logEvents"]]
+                            payload = "\n".join(messages)
+                            # Encode log events and return transformed record
+                            encoded = base64.b64encode(payload.encode()).decode()
+                            return {
+                                "recordId": record["recordId"],
+                                "result": "Ok",
+                                "data": encoded,
+                            }
+                        # Send failure for other record types 
+                        # (mainly "CONTROL_MESSAGE" type)
+                        elif data["messageType"] != "DATA_MESSAGE":
+                            return {
+                                "recordId": record["recordId"],
+                                "result": "ProcessingFailed"
+                                }
+
+                    def add_media_columns(message):
+                        """
+                        MediaPackage logs - Add extra media columns to event message.
+                        
+                        Parameters
+                        ----------
+                        message (str) - Event message content (string).
+
+                        Returns
+                        ------
+                        message (str) - Event message with extra media columns (string).
+                        """
+                        #?Media extensions
+                        manifest_exts = [".m3u8", ".mpd", ".ism", ".m3u8"]
+                        segment_exts = [".ts", ".mp4"]
+                        # str to dict
+                        message_dict = _str_to_dict(message)
+                        # If message is a dict and contains "request" key
+                        if message_dict and message_dict.get("request"):
+                            # Add "requestType" element (column)
+                            if any(ext in message_dict["request"] for ext in manifest_exts):
+                                message_dict["requestType"] = "manifest"
+                            elif any(ext in message_dict["request"] for ext in segment_exts):
+                                message_dict["requestType"] = "segment"
+                            #?Return new message (str)
+                            return json.dumps(message_dict)
+                        # Return initial message
+                        else: return message
+
+                    def _str_to_dict(string):
+                        """
+                        Cast string to dict safely (without errors).
+                        
+                        Parameters
+                        ----------
+                        string (str) - Input string to cast.
+
+                        Returns
+                        ------
+                        casted_dict (dict) - dict, otherwise None.
+                        """
+                        try:
+                            casted_dict = json.loads(string)
+                            return casted_dict
+                        except json.JSONDecodeError:
+                            return None
+
+                    def lambda_handler(event, context):
+                        """
+                        Lambda function Handler - Performs the following:
+                        1- Extracts log events from each CloudWatch Logs record.
+                        2- Returns transformed records to Kinesis Firehose.
+                        For an input event temolate, check "kinesis-cloudwatch-logs-processor".
+
+                        Parameters
+                        ----------
+                        event (dict, required) - Lambda input event from CloudWatch.
+                        context: object, required Lambda Context runtime methods and attributes.
+
+                        Returns
+                        ------
+                        records (dict) - Success/Failure output event.
+                        """
+                        records = [process_record(record) for record in event["records"]]
+                        return {"records": records}
+        Metadata:
+            cfn_nag:
+             rules_to_suppress:
+               - id: "W58"
+                 reason: "Lambda function has the minimum CloudWatch permissions."
+               - id: "W89"
+                 reason: "No need to access to VPC resources."
+               - id: "W92"
+                 reason: "No need for reserved concurrency."
+
+    GlueMediaPackageDB:
+        Type: AWS::Glue::Database
+        Properties:
+            CatalogId: !Ref AWS::AccountId
+            DatabaseInput:
+                Name: !Ref AthenaDatabaseName
+                Description: "Glue Data Catalog - MediaPackage logs DB."
+
+    GlueMediaPackageIngressLogs:
+        Type: AWS::Glue::Table
+        Metadata:
+          cfn-lint:
+            config:
+              ignore_checks:
+                - W3005
+        DependsOn: GlueMediaPackageDB
+        Properties:
+            CatalogId: !Ref AWS::AccountId
+            DatabaseName: !Ref GlueMediaPackageDB
+            TableInput:
+                Name: !Ref IngressTableName
+                Description: "Glue Data Catalog - MediaPackage ingress logs table."
+                TableType: "EXTERNAL_TABLE"        
+                StorageDescriptor:
+                    Columns:
+                      - Name: "timestamp"
+                        Type: timestamp
+                      - Name: "clientip"
+                        Type: string
+                      - Name: "processingtime"
+                        Type: double
+                      - Name: "statuscode"
+                        Type: string
+                      - Name: "receivedbytes"
+                        Type: int
+                      - Name: "sentbytes"
+                        Type: int
+                      - Name: "method"
+                        Type: string
+                      - Name: "request"
+                        Type: string
+                      - Name: "requestType"
+                        Type: string
+                      - Name: "protocol"
+                        Type: string
+                      - Name: "useragent"
+                        Type: string
+                      - Name: "domainname"
+                        Type: string
+                      - Name: "requestid"
+                        Type: string
+                      - Name: "account"
+                        Type: string
+                      - Name: "channelid"
+                        Type: string
+                      - Name: "channelarn"
+                        Type: string
+                    Location: !Sub "s3://${S3DestinationBucket}/${S3DestinationPrefix}/ingress/"
+                    InputFormat: "org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat"
+                    OutputFormat: "org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat"
+                    SerdeInfo:
+                        SerializationLibrary: "org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe"
+                    Compressed: false
+                PartitionKeys:
+                  - Name: "date"
+                    Type: string
+                Parameters:
+                    projection.enabled: "true"
+                    projection.date.type: "date"
+                    projection.date.format: "yyyy/MM/dd"
+                    projection.date.range: "2024/01/01,NOW"
+                    projection.date.interval: "1"
+                    projection.date.interval.unit: "DAYS"
+                    storage.location.template: !Join 
+                      - ''
+                      - - !Sub "s3://${S3DestinationBucket}/"
+                        - !Sub "${S3DestinationPrefix}/"
+                        - "ingress/"
+                        - "${date}/"
+
+    GlueMediaPackageIngressErrors:
+        Type: AWS::Glue::Table
+        Metadata:
+          cfn-lint:
+            config:
+              ignore_checks:
+                - W3005
+        DependsOn: GlueMediaPackageDB
+        Properties:
+            CatalogId: !Ref AWS::AccountId
+            DatabaseName: !Ref GlueMediaPackageDB
+            TableInput:
+                Name: !Sub "${IngressTableName}_errors"
+                Description: "Glue Data Catalog - MediaPackage ingress logs processing errors table."
+                TableType: "EXTERNAL_TABLE"        
+                StorageDescriptor:
+                    Columns:
+                      - Name: "attemptsmade"
+                        Type: int
+                      - Name: "arrivaltimestamp"
+                        Type: bigint
+                      - Name: "errorcode"
+                        Type: string
+                      - Name: "errormessage"
+                        Type: string
+                      - Name: "attemptendingtimestamp"
+                        Type: bigint
+                      - Name: "rawdata"
+                        Type: string
+                      - Name: "lambdaarn"
+                        Type: string
+                    Location: !Sub "s3://${S3DestinationBucket}/${S3DestinationPrefix}_errors/ingress/processing-failed/"
+                    InputFormat: "org.apache.hadoop.mapred.TextInputFormat"
+                    OutputFormat: "org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat"
+                    SerdeInfo:
+                        SerializationLibrary: "org.openx.data.jsonserde.JsonSerDe"
+                    Compressed: false
+                PartitionKeys:
+                  - Name: "date"
+                    Type: string
+                Parameters:
+                    projection.enabled: "true"
+                    projection.date.type: "date"
+                    projection.date.format: "yyyy/MM/dd"
+                    projection.date.range: "2024/01/01,NOW"
+                    projection.date.interval: "1"
+                    projection.date.interval.unit: "DAYS"
+                    storage.location.template: !Join 
+                      - ''
+                      - - !Sub "s3://${S3DestinationBucket}/"
+                        - !Sub "${S3DestinationPrefix}_errors/"
+                        - "ingress/processing-failed/"
+                        - "${date}/"
+
+    GlueMediaPackageEgressLogs:
+        Type: AWS::Glue::Table
+        Metadata:
+          cfn-lint:
+            config:
+              ignore_checks:
+                - W3005
+        DependsOn: GlueMediaPackageDB
+        Properties:
+            CatalogId: !Ref AWS::AccountId
+            DatabaseName: !Ref GlueMediaPackageDB
+            TableInput:
+                Name: !Ref EgressTableName
+                Description: "Glue Data Catalog - MediaPackage egress logs table."
+                TableType: "EXTERNAL_TABLE"        
+                StorageDescriptor:
+                    Columns:
+                      - Name: "timestamp"
+                        Type: timestamp
+                      - Name: "clientip"
+                        Type: string
+                      - Name: "processingtime"
+                        Type: double
+                      - Name: "statuscode"
+                        Type: string
+                      - Name: "receivedbytes"
+                        Type: int
+                      - Name: "sentbytes"
+                        Type: int
+                      - Name: "method"
+                        Type: string
+                      - Name: "request"
+                        Type: string
+                      - Name: "requestType"
+                        Type: string
+                      - Name: "protocol"
+                        Type: string
+                      - Name: "useragent"
+                        Type: string
+                      - Name: "account"
+                        Type: string
+                      - Name: "domainname"
+                        Type: string
+                      - Name: "requestid"
+                        Type: string
+                      - Name: "channelid"
+                        Type: string
+                      - Name: "channelarn"
+                        Type: string
+                      - Name: "endpointId"
+                        Type: string
+                      - Name: "endpointArn"
+                        Type: string
+                    Location: !Sub "s3://${S3DestinationBucket}/${S3DestinationPrefix}/egress/"
+                    InputFormat: "org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat"
+                    OutputFormat: "org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat"
+                    SerdeInfo:
+                        SerializationLibrary: "org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe"
+                    Compressed: false
+                PartitionKeys:
+                  - Name: "date"
+                    Type: string
+                Parameters:
+                    projection.enabled: "true"
+                    projection.date.type: "date"
+                    projection.date.format: "yyyy/MM/dd"
+                    projection.date.range: "2024/01/01,NOW"
+                    projection.date.interval: "1"
+                    projection.date.interval.unit: "DAYS"
+                    storage.location.template: !Join 
+                      - ''
+                      - - !Sub "s3://${S3DestinationBucket}/"
+                        - !Sub "${S3DestinationPrefix}/"
+                        - "egress/"
+                        - "${date}/"
+    
+    GlueMediaPackageEgressErrors:
+        Type: AWS::Glue::Table
+        Metadata:
+          cfn-lint:
+            config:
+              ignore_checks:
+                - W3005
+        DependsOn: GlueMediaPackageDB
+        Properties:
+            CatalogId: !Ref AWS::AccountId
+            DatabaseName: !Ref GlueMediaPackageDB
+            TableInput:
+                Name: !Sub "${EgressTableName}_errors"
+                Description: "Glue Data Catalog - MediaPackage egress logs processing errors table."
+                TableType: "EXTERNAL_TABLE"        
+                StorageDescriptor:
+                    Columns:
+                      - Name: "attemptsmade"
+                        Type: int
+                      - Name: "arrivaltimestamp"
+                        Type: bigint
+                      - Name: "errorcode"
+                        Type: string
+                      - Name: "errormessage"
+                        Type: string
+                      - Name: "attemptendingtimestamp"
+                        Type: bigint
+                      - Name: "rawdata"
+                        Type: string
+                      - Name: "lambdaarn"
+                        Type: string
+                    Location: !Sub "s3://${S3DestinationBucket}/${S3DestinationPrefix}_errors/egress/processing-failed/"
+                    InputFormat: "org.apache.hadoop.mapred.TextInputFormat"
+                    OutputFormat: "org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat"
+                    SerdeInfo:
+                        SerializationLibrary: "org.openx.data.jsonserde.JsonSerDe"
+                    Compressed: false
+                PartitionKeys:
+                  - Name: "date"
+                    Type: string
+                Parameters:
+                    projection.enabled: "true"
+                    projection.date.type: "date"
+                    projection.date.format: "yyyy/MM/dd"
+                    projection.date.range: "2024/01/01,NOW"
+                    projection.date.interval: "1"
+                    projection.date.interval.unit: "DAYS"
+                    storage.location.template: !Join 
+                      - ''
+                      - - !Sub "s3://${S3DestinationBucket}/"
+                        - !Sub "${S3DestinationPrefix}_errors/"
+                        - "egress/processing-failed/"
+                        - "${date}/"
+
+    KDFDeliveryStreamRole:
+        Type: AWS::IAM::Role
+        Metadata:
+          cfn_nag:
+            rules_to_suppress:
+              - id: 'W28'
+                reason: "Need explicit name to give permissions"
+        Properties:
+            RoleName: !Sub ${KDFDeliveryStreamPrefix}-role
+            Description: "IAM role of the Kinesis Firehose Delivery Stream for MediaPackage logs delivery to S3."
+            ManagedPolicyArns:
+                - !Ref KDFDeliveryStreamPolicy
+            AssumeRolePolicyDocument:
+                Version: "2012-10-17"
+                Statement:
+                - Effect: "Allow"
+                  Principal:
+                    Service: firehose.amazonaws.com
+                  Action:
+                    - "sts:AssumeRole"                    
+
+    KDFDeliveryStreamPolicy:
+        Type: AWS::IAM::ManagedPolicy
+        Metadata:
+          cfn_nag:
+            rules_to_suppress:
+              - id: 'W28'
+                reason: "Need explicit name to give permissions"
+        Properties:
+            ManagedPolicyName: !Sub ${KDFDeliveryStreamPrefix}-policy
+            Description: "IAM policy of the Kinesis Firehose Delivery Stream for MediaPackage logs delivery to S3."
+            PolicyDocument:
+                Version: "2012-10-17"
+                Statement:
+                - Sid: "AllowCWLogsDelivery"
+                  Effect: "Allow"
+                  Action:
+                    - "logs:PutLogEvents"
+                  Resource: 
+                    - !Sub "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/kinesisfirehose/${KDFDeliveryStreamPrefix}-ingress:*"
+                    - !Sub "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/kinesisfirehose/${KDFDeliveryStreamPrefix}-egress:*"
+                - Sid: "AllowS3ActionsOnDestinationBucket"
+                  Effect: "Allow"
+                  Action:
+                    - "s3:AbortMultipartUpload"
+                    - "s3:GetBucketLocation"
+                    - "s3:GetObject"
+                    - "s3:ListBucket"
+                    - "s3:ListBucketMultipartUploads"
+                    - "s3:PutObject"
+                  Resource: 
+                    - !Sub "arn:aws:s3:::${S3DestinationBucket}"
+                    - !Sub "arn:aws:s3:::${S3DestinationBucket}/*"
+                - Sid: "AllowLambdaActionsOnTransformFunction"
+                  Effect: "Allow"
+                  Action:
+                    - "lambda:InvokeFunction"
+                    - "lambda:GetFunctionConfiguration"
+                  Resource: !GetAtt LambdaKDF.Arn
+                - Sid: "AllowGlueActionsOnTransformFunction"
+                  Effect: "Allow"
+                  Action:
+                    - "glue:GetTable"
+                    - "glue:GetTableVersion"
+                    - "glue:GetTableVersions"
+                  Resource: 
+                    - !Sub "arn:${AWS::Partition}:glue:${AWS::Region}:${AWS::AccountId}:catalog"
+                    - !Sub "arn:${AWS::Partition}:glue:${AWS::Region}:${AWS::AccountId}:database/${AthenaDatabaseName}"
+                    - !Sub "arn:${AWS::Partition}:glue:${AWS::Region}:${AWS::AccountId}:table/${AthenaDatabaseName}/${IngressTableName}"
+                    - !Sub "arn:${AWS::Partition}:glue:${AWS::Region}:${AWS::AccountId}:table/${AthenaDatabaseName}/${EgressTableName}" 
+                - !If 
+                  - KDFDeliveryStreamEncryptionTypeIsCustomerManagedCMK
+                  - Sid: "AllowCustomerManagedCMK"
+                    Effect: Allow
+                    Action:
+                      - "kms:GenerateDataKey"
+                      - "kms:Decrypt"
+                    Resource:
+                      - !Ref KDFDeliveryStreamEncryptionKeyArn
+                  - !Ref AWS::NoValue
+
+    KDFDeliveryStreamIngress:
+        Type: AWS::KinesisFirehose::DeliveryStream
+        Properties:
+            DeliveryStreamName: !Sub "${KDFDeliveryStreamPrefix}-ingress"
+            DeliveryStreamType: "DirectPut"
+            DeliveryStreamEncryptionConfigurationInput:
+              KeyType: !If
+                  - KDFDeliveryStreamEncryptionTypeIsCustomerManagedCMK
+                  - "CUSTOMER_MANAGED_CMK"
+                  - "AWS_OWNED_CMK"
+              KeyARN: !If
+                  - KDFDeliveryStreamEncryptionTypeIsCustomerManagedCMK
+                  - !Ref KDFDeliveryStreamEncryptionKeyArn
+                  - !Ref AWS::NoValue
+            ExtendedS3DestinationConfiguration:
+                RoleARN: !GetAtt KDFDeliveryStreamRole.Arn
+                BucketARN: !Sub "arn:aws:s3:::${S3DestinationBucket}"
+                Prefix: !Sub "${S3DestinationPrefix}/ingress/"
+                ErrorOutputPrefix: !Sub "${S3DestinationPrefix}_errors/ingress/"
+                CompressionFormat: "UNCOMPRESSED"
+                BufferingHints:
+                    IntervalInSeconds: !Ref KDFBufferIntervalInSeconds
+                    SizeInMBs: 64
+                DynamicPartitioningConfiguration:
+                    Enabled: false
+                DataFormatConversionConfiguration:
+                    Enabled: true
+                    InputFormatConfiguration:
+                        Deserializer:
+                            OpenXJsonSerDe: {}
+                    OutputFormatConfiguration:
+                        Serializer:
+                            ParquetSerDe: {}
+                    SchemaConfiguration:
+                        CatalogId: !Ref AWS::AccountId
+                        Region: !Ref AWS::Region
+                        DatabaseName: !Ref AthenaDatabaseName
+                        TableName: !Ref IngressTableName
+                        VersionId: LATEST
+                        RoleARN: !GetAtt KDFDeliveryStreamRole.Arn
+                ProcessingConfiguration:
+                    Enabled: true
+                    Processors:
+                        - Type: Lambda
+                          Parameters:
+                                - ParameterName: LambdaArn
+                                  ParameterValue: !GetAtt LambdaKDF.Arn
+                        - Type: AppendDelimiterToRecord
+                          Parameters: []
+                CloudWatchLoggingOptions:
+                    Enabled: true
+                    LogGroupName: !Sub "/aws/kinesisfirehose/${KDFDeliveryStreamPrefix}-ingress"
+                    LogStreamName: "DestinationDelivery"
+                S3BackupMode: "Disabled"
+
+    KDFDeliveryStreamEgress:
+        Type: AWS::KinesisFirehose::DeliveryStream
+        Properties:
+            DeliveryStreamName: !Sub "${KDFDeliveryStreamPrefix}-egress"
+            DeliveryStreamType: "DirectPut"
+            DeliveryStreamEncryptionConfigurationInput:
+              KeyType: !If
+                  - KDFDeliveryStreamEncryptionTypeIsCustomerManagedCMK
+                  - "CUSTOMER_MANAGED_CMK"
+                  - "AWS_OWNED_CMK"
+              KeyARN: !If
+                  - KDFDeliveryStreamEncryptionTypeIsCustomerManagedCMK
+                  - !Ref KDFDeliveryStreamEncryptionKeyArn
+                  - !Ref AWS::NoValue
+            ExtendedS3DestinationConfiguration:
+                RoleARN: !GetAtt KDFDeliveryStreamRole.Arn
+                BucketARN: !Sub "arn:aws:s3:::${S3DestinationBucket}"
+                Prefix: !Sub "${S3DestinationPrefix}/egress/"
+                ErrorOutputPrefix: !Sub "${S3DestinationPrefix}_errors/egress/"
+                CompressionFormat: "UNCOMPRESSED"
+                BufferingHints:
+                    IntervalInSeconds: !Ref KDFBufferIntervalInSeconds
+                    SizeInMBs: 64
+                DynamicPartitioningConfiguration:
+                    Enabled: false
+                DataFormatConversionConfiguration:
+                    Enabled: true
+                    InputFormatConfiguration:
+                        Deserializer:
+                            OpenXJsonSerDe: {}
+                    OutputFormatConfiguration:
+                        Serializer:
+                            ParquetSerDe: {}
+                    SchemaConfiguration:
+                        CatalogId: !Ref AWS::AccountId
+                        Region: !Ref AWS::Region
+                        DatabaseName: !Ref AthenaDatabaseName
+                        TableName: !Ref EgressTableName
+                        VersionId: LATEST
+                        RoleARN: !GetAtt KDFDeliveryStreamRole.Arn
+                ProcessingConfiguration:
+                    Enabled: true
+                    Processors:
+                        - Type: Lambda
+                          Parameters:
+                                - ParameterName: LambdaArn
+                                  ParameterValue: !GetAtt LambdaKDF.Arn
+                        - Type: AppendDelimiterToRecord
+                          Parameters: []
+                CloudWatchLoggingOptions:
+                    Enabled: true
+                    LogGroupName: !Sub "/aws/kinesisfirehose/${KDFDeliveryStreamPrefix}-egress"
+                    LogStreamName: "DestinationDelivery"
+                S3BackupMode: "Disabled"
+
+    CloudWatchMediaPackageRole:
+        Type: AWS::IAM::Role
+        Metadata:
+          cfn_nag:
+            rules_to_suppress:
+              - id: 'W28'
+                reason: "Need explicit name to give permissions"
+        Properties:
+            RoleName: "cw-logs-subscription-filter-role"
+            Description: "IAM role used by CloudWatch to push logs to Kinesis Firehose."
+            ManagedPolicyArns:
+                - !Ref CloudWatchMediaPackagePolicy
+            AssumeRolePolicyDocument:
+                Version: "2012-10-17"
+                Statement:
+                - Effect: "Allow"
+                  Principal:
+                    Service: "logs.amazonaws.com"
+                  Action:
+                    - "sts:AssumeRole"    
+
+    CloudWatchMediaPackagePolicy:
+        Type: AWS::IAM::ManagedPolicy
+        Metadata:
+          cfn_nag:
+            rules_to_suppress:
+              - id: 'W28'
+                reason: "Need explicit name to give permissions"
+        Properties:
+            ManagedPolicyName: "cw-logs-subscription-filter-policy"
+            Description: "IAM policy for CloudWatch to push logs to Kinesis Firehose."
+            PolicyDocument:
+                Version: "2012-10-17"
+                Statement:
+                - Effect: "Allow"
+                  Action:
+                    - "firehose:PutRecord"
+                  Resource: 
+                    - !GetAtt KDFDeliveryStreamIngress.Arn
+                    - !GetAtt KDFDeliveryStreamEgress.Arn
+
+    CloudWatchMediaPackageIngress:
+        Type: AWS::Logs::SubscriptionFilter
+        Properties:
+            LogGroupName: !Ref MediaPackageIngressLogStream
+            DestinationArn: !GetAtt KDFDeliveryStreamIngress.Arn
+            FilterName: "mediapackage-ingress-to-firehose"
+            FilterPattern: ""
+            RoleArn: !GetAtt CloudWatchMediaPackageRole.Arn
+    
+    CloudWatchMediaPackageEgress:
+        Type: AWS::Logs::SubscriptionFilter
+        Properties:
+            LogGroupName: !Ref MediaPackageEgressLogStream
+            DestinationArn: !GetAtt KDFDeliveryStreamEgress.Arn
+            FilterName: "mediapackage-egress-to-firehose"
+            FilterPattern: ""
+            RoleArn: !GetAtt CloudWatchMediaPackageRole.Arn

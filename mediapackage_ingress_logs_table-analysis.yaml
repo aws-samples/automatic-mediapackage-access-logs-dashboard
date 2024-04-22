@@ -1,0 +1,1006 @@
+dashboards:
+  MEDIAPACKAGE_INGRESS_LOGS_TABLE ANALYSIS:
+    dependsOn:
+      datasets:
+      - mediapackage_ingress_logs_table
+    name: mediapackage_ingress_logs_table analysis
+    dashboardId: mediapackage-ingress-logs-table-analysis
+    data: |-
+      AnalysisDefaults:
+        DefaultNewSheetConfiguration:
+          InteractiveLayoutConfiguration:
+            Grid:
+              CanvasSizeOptions:
+                ScreenCanvasSizeOptions:
+                  OptimizedViewPortWidth: 1600px
+                  ResizeOption: FIXED
+          SheetContentType: INTERACTIVE
+      CalculatedFields: []
+      DataSetIdentifierDeclarations:
+      - DataSetArn: arn:aws:quicksight:::dataset/3427bd49-e8aa-4043-9804-df83c82ca009
+        Identifier: mediapackage_ingress_logs_table
+      FilterGroups:
+      - CrossDataset: SINGLE_DATASET
+        FilterGroupId: 9c306ffd-2b34-4c2b-b096-7bbca37d8426
+        Filters:
+        - CategoryFilter:
+            Column:
+              ColumnName: requesttype
+              DataSetIdentifier: mediapackage_ingress_logs_table
+            Configuration:
+              FilterListConfiguration:
+                MatchOperator: CONTAINS
+                SelectAllOptions: FILTER_ALL_VALUES
+            FilterId: ed409c58-855e-4f35-8d0b-0e9fad922df3
+        ScopeConfiguration:
+          SelectedSheets:
+            SheetVisualScopingConfigurations:
+            - Scope: ALL_VISUALS
+              SheetId: b7d6c7ef-32b4-40fa-9ee1-6b3038c5b852
+        Status: ENABLED
+      - CrossDataset: SINGLE_DATASET
+        FilterGroupId: b8e997bf-5d58-40f4-b7e8-e9f58ff0c124
+        Filters:
+        - TimeRangeFilter:
+            Column:
+              ColumnName: timestamp
+              DataSetIdentifier: mediapackage_ingress_logs_table
+            FilterId: 67c4d50d-bbfe-4c1a-aa7e-57a2a74b6294
+            IncludeMaximum: true
+            IncludeMinimum: true
+            NullOption: NON_NULLS_ONLY
+            RangeMaximumValue:
+              Parameter: endDate
+            RangeMinimumValue:
+              Parameter: startDate
+            TimeGranularity: DAY
+        ScopeConfiguration:
+          SelectedSheets:
+            SheetVisualScopingConfigurations:
+            - Scope: ALL_VISUALS
+              SheetId: b7d6c7ef-32b4-40fa-9ee1-6b3038c5b852
+        Status: ENABLED
+      ParameterDeclarations:
+      - DateTimeParameterDeclaration:
+          DefaultValues:
+            RollingDate:
+              Expression: addDateTime(-1, 'DD', truncDate('DD', now()))
+            StaticValues: []
+          Name: startDate
+          TimeGranularity: MINUTE
+      - DateTimeParameterDeclaration:
+          DefaultValues:
+            RollingDate:
+              Expression: truncDate('DD', now())
+            StaticValues: []
+          Name: endDate
+          TimeGranularity: MINUTE
+      Sheets:
+      - ContentType: INTERACTIVE
+        FilterControls:
+        - Dropdown:
+            DisplayOptions:
+              SelectAllOptions:
+                Visibility: VISIBLE
+            FilterControlId: b0b56db9-cf37-438d-8ece-57d7f37abf7c
+            SourceFilterId: ed409c58-855e-4f35-8d0b-0e9fad922df3
+            Title: requesttype equals
+            Type: MULTI_SELECT
+        Layouts:
+        - Configuration:
+            GridLayout:
+              CanvasSizeOptions:
+                ScreenCanvasSizeOptions:
+                  OptimizedViewPortWidth: 1600px
+                  ResizeOption: FIXED
+              Elements:
+              - ColumnIndex: 0
+                ColumnSpan: 35
+                ElementId: 64249ca9-07e9-44ff-88e3-3f9fb033dc42
+                ElementType: TEXT_BOX
+                RowIndex: 0
+                RowSpan: 9
+              - ColumnIndex: 0
+                ColumnSpan: 11
+                ElementId: a8367046-3bd5-4a2f-85f7-b0f346a48d0c
+                ElementType: VISUAL
+                RowIndex: 9
+                RowSpan: 7
+              - ColumnIndex: 11
+                ColumnSpan: 10
+                ElementId: 640d5b4e-6b5f-4f8c-a5cb-c822fba859c6
+                ElementType: VISUAL
+                RowIndex: 9
+                RowSpan: 7
+              - ColumnIndex: 21
+                ColumnSpan: 9
+                ElementId: ddf2e769-f639-4680-9888-07b7114a0382
+                ElementType: VISUAL
+                RowIndex: 9
+                RowSpan: 7
+              - ColumnIndex: 0
+                ColumnSpan: 9
+                ElementId: f349f09b-8e3b-46cb-bb97-85045102de64
+                ElementType: VISUAL
+                RowIndex: 16
+                RowSpan: 9
+              - ColumnIndex: 9
+                ColumnSpan: 8
+                ElementId: 6da8382f-403e-4431-a36d-2327171466b0
+                ElementType: VISUAL
+                RowIndex: 16
+                RowSpan: 9
+              - ColumnIndex: 17
+                ColumnSpan: 13
+                ElementId: 29b49c53-3ca5-4ac8-8261-a5472bd2e856
+                ElementType: VISUAL
+                RowIndex: 16
+                RowSpan: 9
+              - ColumnIndex: 0
+                ColumnSpan: 11
+                ElementId: 9b3a32b1-6d6b-42b2-b142-0d03e385d36c
+                ElementType: VISUAL
+                RowIndex: 25
+                RowSpan: 9
+              - ColumnIndex: 11
+                ColumnSpan: 9
+                ElementId: 1e071a90-1491-4e7e-9d20-0bb8472b96f2
+                ElementType: VISUAL
+                RowIndex: 25
+                RowSpan: 9
+              - ColumnIndex: 20
+                ColumnSpan: 10
+                ElementId: cf4e63dc-a4d5-416b-80ff-592dea063246
+                ElementType: VISUAL
+                RowIndex: 25
+                RowSpan: 9
+              - ColumnIndex: 0
+                ColumnSpan: 11
+                ElementId: 9800bb28-d5d3-40d1-b29d-41ae746be376
+                ElementType: VISUAL
+                RowIndex: 34
+                RowSpan: 9
+              - ColumnIndex: 11
+                ColumnSpan: 9
+                ElementId: d14f65d8-772d-47cb-ab5a-93c50e809743
+                ElementType: VISUAL
+                RowIndex: 34
+                RowSpan: 9
+              - ColumnIndex: 20
+                ColumnSpan: 10
+                ElementId: 23cb2179-4066-414a-a475-ea6c570e5011
+                ElementType: VISUAL
+                RowIndex: 34
+                RowSpan: 9
+        Name: MP_Ingress_Logs_Insights
+        ParameterControls:
+        - DateTimePicker:
+            DisplayOptions:
+              DateTimeFormat: YYYY/MM/DD HH:mm:ss
+              TitleOptions:
+                FontConfiguration:
+                  FontSize:
+                    Relative: MEDIUM
+                Visibility: VISIBLE
+            ParameterControlId: 17fb31f7-fec5-4119-87f3-b1a95ffce5e5
+            SourceParameterName: startDate
+            Title: StartDate
+        - DateTimePicker:
+            DisplayOptions:
+              DateTimeFormat: YYYY/MM/DD HH:mm:ss
+              TitleOptions:
+                FontConfiguration:
+                  FontSize:
+                    Relative: MEDIUM
+                Visibility: VISIBLE
+            ParameterControlId: da3ba33e-cb12-4904-9163-16a0aacbe91c
+            SourceParameterName: endDate
+            Title: EndDate
+        SheetControlLayouts:
+        - Configuration:
+            GridLayout:
+              Elements:
+              - ColumnSpan: 2
+                ElementId: b0b56db9-cf37-438d-8ece-57d7f37abf7c
+                ElementType: FILTER_CONTROL
+                RowSpan: 1
+              - ColumnSpan: 2
+                ElementId: 17fb31f7-fec5-4119-87f3-b1a95ffce5e5
+                ElementType: PARAMETER_CONTROL
+                RowSpan: 1
+              - ColumnSpan: 2
+                ElementId: da3ba33e-cb12-4904-9163-16a0aacbe91c
+                ElementType: PARAMETER_CONTROL
+                RowSpan: 1
+        SheetId: b7d6c7ef-32b4-40fa-9ee1-6b3038c5b852
+        TextBoxes:
+        - Content: |-
+            <text-box>
+              The following graphs are based on Ingress MediaPackage Access Logs. The dashboard provides customers with near real-time insights into key egress metrics including:
+              <br/>
+              <br/>
+              - Total ingress requests
+              <br/>
+              - ingress requests per endpoint
+              <br/>
+              - Status code distribution
+              <br/>
+              - Top channel IDs
+              <br/>
+              - Domain names
+              <br/>
+              <br/>
+              Customers can also gain insights into:
+              <br/>
+              <br/>
+              - Top client IP addresses
+              <br/>
+              - Popular user agents
+              <br/>
+              - Protocol breakdown (HTTP/HTTPS)
+              <br/>
+              - Content type distribution (manifests vs segments)
+              <br/>
+              <br/>
+              This gives customers visibility into how their streams are being accessed from the edge in near real-time. For more details on MediaPackage ingress logging and the available metrics, please refer to the AWS documentation at:
+              <br/>
+              <br/>
+              https://docs.aws.amazon.com/mediapackage/latest/ug/access-logging.html
+            </text-box>
+          SheetTextBoxId: 64249ca9-07e9-44ff-88e3-3f9fb033dc42
+        Visuals:
+        - BarChartVisual:
+            Actions: []
+            ChartConfiguration:
+              BarsArrangement: STACKED
+              DataLabels:
+                Overlap: DISABLE_OVERLAP
+                Visibility: HIDDEN
+              FieldWells:
+                BarChartAggregatedFieldWells:
+                  Category:
+                  - DateDimensionField:
+                      Column:
+                        ColumnName: timestamp
+                        DataSetIdentifier: mediapackage_ingress_logs_table
+                      DateGranularity: MINUTE
+                      FieldId: c5ef7bd6-20e5-41c3-bc11-b807dd72b8e3.timestamp.0.1712320378394
+                      HierarchyId: c5ef7bd6-20e5-41c3-bc11-b807dd72b8e3.timestamp.0.1712320378394
+                  Colors: []
+                  Values:
+                  - NumericalMeasureField:
+                      AggregationFunction:
+                        SimpleNumericalAggregation: AVERAGE
+                      Column:
+                        ColumnName: receivedbytes
+                        DataSetIdentifier: mediapackage_ingress_logs_table
+                      FieldId: c5ef7bd6-20e5-41c3-bc11-b807dd72b8e3.receivedbytes.1.1712320587732
+              Orientation: VERTICAL
+              SortConfiguration:
+                CategoryItemsLimit:
+                  OtherCategories: INCLUDE
+                CategorySort:
+                - FieldSort:
+                    Direction: ASC
+                    FieldId: c5ef7bd6-20e5-41c3-bc11-b807dd72b8e3.timestamp.0.1712320378394
+                ColorItemsLimit:
+                  OtherCategories: INCLUDE
+                SmallMultiplesLimitConfiguration:
+                  OtherCategories: INCLUDE
+              Tooltip:
+                FieldBasedTooltip:
+                  AggregationVisibility: HIDDEN
+                  TooltipFields:
+                  - FieldTooltipItem:
+                      FieldId: c5ef7bd6-20e5-41c3-bc11-b807dd72b8e3.timestamp.0.1712320378394
+                      Visibility: VISIBLE
+                  - FieldTooltipItem:
+                      FieldId: c5ef7bd6-20e5-41c3-bc11-b807dd72b8e3.receivedbytes.1.1712320587732
+                      Visibility: VISIBLE
+                  TooltipTitleType: PRIMARY_VALUE
+                SelectedTooltipType: DETAILED
+                TooltipVisibility: VISIBLE
+            ColumnHierarchies:
+            - DateTimeHierarchy:
+                HierarchyId: c5ef7bd6-20e5-41c3-bc11-b807dd72b8e3.timestamp.0.1712320378394
+            Subtitle:
+              Visibility: VISIBLE
+            Title:
+              Visibility: VISIBLE
+            VisualId: 6da8382f-403e-4431-a36d-2327171466b0
+        - LineChartVisual:
+            Actions: []
+            ChartConfiguration:
+              DataLabels:
+                Overlap: DISABLE_OVERLAP
+                Visibility: HIDDEN
+              FieldWells:
+                LineChartAggregatedFieldWells:
+                  Category:
+                  - DateDimensionField:
+                      Column:
+                        ColumnName: timestamp
+                        DataSetIdentifier: mediapackage_ingress_logs_table
+                      DateGranularity: MINUTE
+                      FieldId: c5ef7bd6-20e5-41c3-bc11-b807dd72b8e3.timestamp.0.1712320224283
+                      HierarchyId: c5ef7bd6-20e5-41c3-bc11-b807dd72b8e3.timestamp.0.1712320224283
+                  Colors: []
+                  Values:
+                  - CategoricalMeasureField:
+                      AggregationFunction: COUNT
+                      Column:
+                        ColumnName: request
+                        DataSetIdentifier: mediapackage_ingress_logs_table
+                      FieldId: c5ef7bd6-20e5-41c3-bc11-b807dd72b8e3.request.1.1712320231866
+              SortConfiguration:
+                CategoryItemsLimitConfiguration:
+                  OtherCategories: INCLUDE
+                CategorySort:
+                - FieldSort:
+                    Direction: DESC
+                    FieldId: c5ef7bd6-20e5-41c3-bc11-b807dd72b8e3.timestamp.0.1712320224283
+                ColorItemsLimitConfiguration:
+                  OtherCategories: INCLUDE
+                SmallMultiplesLimitConfiguration:
+                  OtherCategories: INCLUDE
+              Tooltip:
+                FieldBasedTooltip:
+                  AggregationVisibility: HIDDEN
+                  TooltipFields:
+                  - FieldTooltipItem:
+                      FieldId: c5ef7bd6-20e5-41c3-bc11-b807dd72b8e3.timestamp.0.1712320224283
+                      Visibility: VISIBLE
+                  - FieldTooltipItem:
+                      FieldId: c5ef7bd6-20e5-41c3-bc11-b807dd72b8e3.request.1.1712320231866
+                      Visibility: VISIBLE
+                  TooltipTitleType: PRIMARY_VALUE
+                SelectedTooltipType: DETAILED
+                TooltipVisibility: VISIBLE
+              Type: LINE
+            ColumnHierarchies:
+            - DateTimeHierarchy:
+                HierarchyId: c5ef7bd6-20e5-41c3-bc11-b807dd72b8e3.timestamp.0.1712320224283
+            Subtitle:
+              Visibility: VISIBLE
+            Title:
+              Visibility: VISIBLE
+            VisualId: a8367046-3bd5-4a2f-85f7-b0f346a48d0c
+        - LineChartVisual:
+            Actions: []
+            ChartConfiguration:
+              DataLabels:
+                Overlap: DISABLE_OVERLAP
+                Visibility: HIDDEN
+              FieldWells:
+                LineChartAggregatedFieldWells:
+                  Category:
+                  - DateDimensionField:
+                      Column:
+                        ColumnName: timestamp
+                        DataSetIdentifier: mediapackage_ingress_logs_table
+                      DateGranularity: MINUTE
+                      FieldId: c5ef7bd6-20e5-41c3-bc11-b807dd72b8e3.timestamp.0.1712320273290
+                      HierarchyId: c5ef7bd6-20e5-41c3-bc11-b807dd72b8e3.timestamp.0.1712320273290
+                  Colors:
+                  - CategoricalDimensionField:
+                      Column:
+                        ColumnName: channelid
+                        DataSetIdentifier: mediapackage_ingress_logs_table
+                      FieldId: c5ef7bd6-20e5-41c3-bc11-b807dd72b8e3.channelid.2.1712320303237
+                  Values:
+                  - CategoricalMeasureField:
+                      AggregationFunction: COUNT
+                      Column:
+                        ColumnName: request
+                        DataSetIdentifier: mediapackage_ingress_logs_table
+                      FieldId: c5ef7bd6-20e5-41c3-bc11-b807dd72b8e3.request.1.1712320287177
+              SortConfiguration:
+                CategoryItemsLimitConfiguration:
+                  OtherCategories: INCLUDE
+                CategorySort:
+                - FieldSort:
+                    Direction: DESC
+                    FieldId: c5ef7bd6-20e5-41c3-bc11-b807dd72b8e3.timestamp.0.1712320273290
+                ColorItemsLimitConfiguration:
+                  OtherCategories: INCLUDE
+                SmallMultiplesLimitConfiguration:
+                  OtherCategories: INCLUDE
+              Tooltip:
+                FieldBasedTooltip:
+                  AggregationVisibility: HIDDEN
+                  TooltipFields:
+                  - FieldTooltipItem:
+                      FieldId: c5ef7bd6-20e5-41c3-bc11-b807dd72b8e3.timestamp.0.1712320273290
+                      Visibility: VISIBLE
+                  - FieldTooltipItem:
+                      FieldId: c5ef7bd6-20e5-41c3-bc11-b807dd72b8e3.request.1.1712320287177
+                      Visibility: VISIBLE
+                  - FieldTooltipItem:
+                      FieldId: c5ef7bd6-20e5-41c3-bc11-b807dd72b8e3.channelid.2.1712320303237
+                      Visibility: VISIBLE
+                  TooltipTitleType: PRIMARY_VALUE
+                SelectedTooltipType: DETAILED
+                TooltipVisibility: VISIBLE
+              Type: LINE
+            ColumnHierarchies:
+            - DateTimeHierarchy:
+                HierarchyId: c5ef7bd6-20e5-41c3-bc11-b807dd72b8e3.timestamp.0.1712320273290
+            Subtitle:
+              Visibility: VISIBLE
+            Title:
+              Visibility: VISIBLE
+            VisualId: 640d5b4e-6b5f-4f8c-a5cb-c822fba859c6
+        - BarChartVisual:
+            Actions: []
+            ChartConfiguration:
+              BarsArrangement: STACKED
+              DataLabels:
+                Overlap: DISABLE_OVERLAP
+                Visibility: HIDDEN
+              FieldWells:
+                BarChartAggregatedFieldWells:
+                  Category:
+                  - DateDimensionField:
+                      Column:
+                        ColumnName: timestamp
+                        DataSetIdentifier: mediapackage_ingress_logs_table
+                      DateGranularity: MINUTE
+                      FieldId: c5ef7bd6-20e5-41c3-bc11-b807dd72b8e3.timestamp.0.1712320378394
+                      HierarchyId: c5ef7bd6-20e5-41c3-bc11-b807dd72b8e3.timestamp.0.1712320378394
+                  Colors: []
+                  Values:
+                  - NumericalMeasureField:
+                      AggregationFunction:
+                        SimpleNumericalAggregation: AVERAGE
+                      Column:
+                        ColumnName: sentbytes
+                        DataSetIdentifier: mediapackage_ingress_logs_table
+                      FieldId: c5ef7bd6-20e5-41c3-bc11-b807dd72b8e3.sentbytes.2.1712320425072
+              Orientation: VERTICAL
+              SortConfiguration:
+                CategoryItemsLimit:
+                  OtherCategories: INCLUDE
+                CategorySort:
+                - FieldSort:
+                    Direction: ASC
+                    FieldId: c5ef7bd6-20e5-41c3-bc11-b807dd72b8e3.timestamp.0.1712320378394
+                ColorItemsLimit:
+                  OtherCategories: INCLUDE
+                SmallMultiplesLimitConfiguration:
+                  OtherCategories: INCLUDE
+              Tooltip:
+                FieldBasedTooltip:
+                  AggregationVisibility: HIDDEN
+                  TooltipFields:
+                  - FieldTooltipItem:
+                      FieldId: c5ef7bd6-20e5-41c3-bc11-b807dd72b8e3.timestamp.0.1712320378394
+                      Visibility: VISIBLE
+                  - FieldTooltipItem:
+                      FieldId: c5ef7bd6-20e5-41c3-bc11-b807dd72b8e3.sentbytes.2.1712320425072
+                      Visibility: VISIBLE
+                  TooltipTitleType: PRIMARY_VALUE
+                SelectedTooltipType: DETAILED
+                TooltipVisibility: VISIBLE
+            ColumnHierarchies:
+            - ExplicitHierarchy:
+                Columns:
+                - ColumnName: sentbytes
+                  DataSetIdentifier: mediapackage_ingress_logs_table
+                - ColumnName: receivedbytes
+                  DataSetIdentifier: mediapackage_ingress_logs_table
+                DrillDownFilters: []
+                HierarchyId: fd91301d-fe18-4929-b051-39e3d7e908d0
+            - DateTimeHierarchy:
+                HierarchyId: c5ef7bd6-20e5-41c3-bc11-b807dd72b8e3.timestamp.0.1712320378394
+            Subtitle:
+              Visibility: VISIBLE
+            Title:
+              Visibility: VISIBLE
+            VisualId: f349f09b-8e3b-46cb-bb97-85045102de64
+        - PieChartVisual:
+            Actions: []
+            ChartConfiguration:
+              DataLabels:
+                Overlap: DISABLE_OVERLAP
+                Visibility: VISIBLE
+              DonutOptions:
+                ArcOptions:
+                  ArcThickness: WHOLE
+              FieldWells:
+                PieChartAggregatedFieldWells:
+                  Category:
+                  - CategoricalDimensionField:
+                      Column:
+                        ColumnName: request
+                        DataSetIdentifier: mediapackage_ingress_logs_table
+                      FieldId: c5ef7bd6-20e5-41c3-bc11-b807dd72b8e3.request.0.1712320634741
+                  Values:
+                  - CategoricalMeasureField:
+                      AggregationFunction: COUNT
+                      Column:
+                        ColumnName: clientip
+                        DataSetIdentifier: mediapackage_ingress_logs_table
+                      FieldId: c5ef7bd6-20e5-41c3-bc11-b807dd72b8e3.clientip.1.1712320641638
+              SortConfiguration:
+                CategoryItemsLimit:
+                  OtherCategories: INCLUDE
+                CategorySort:
+                - FieldSort:
+                    Direction: DESC
+                    FieldId: c5ef7bd6-20e5-41c3-bc11-b807dd72b8e3.clientip.1.1712320641638
+                SmallMultiplesLimitConfiguration:
+                  OtherCategories: INCLUDE
+              Tooltip:
+                FieldBasedTooltip:
+                  AggregationVisibility: HIDDEN
+                  TooltipFields:
+                  - FieldTooltipItem:
+                      FieldId: c5ef7bd6-20e5-41c3-bc11-b807dd72b8e3.request.0.1712320634741
+                      Visibility: VISIBLE
+                  - FieldTooltipItem:
+                      FieldId: c5ef7bd6-20e5-41c3-bc11-b807dd72b8e3.clientip.1.1712320641638
+                      Visibility: VISIBLE
+                  TooltipTitleType: PRIMARY_VALUE
+                SelectedTooltipType: DETAILED
+                TooltipVisibility: VISIBLE
+            ColumnHierarchies: []
+            Subtitle:
+              Visibility: VISIBLE
+            Title:
+              Visibility: VISIBLE
+            VisualId: 9b3a32b1-6d6b-42b2-b142-0d03e385d36c
+        - PieChartVisual:
+            Actions: []
+            ChartConfiguration:
+              DataLabels:
+                Overlap: DISABLE_OVERLAP
+                Visibility: VISIBLE
+              DonutOptions:
+                ArcOptions:
+                  ArcThickness: WHOLE
+              FieldWells:
+                PieChartAggregatedFieldWells:
+                  Category:
+                  - CategoricalDimensionField:
+                      Column:
+                        ColumnName: protocol
+                        DataSetIdentifier: mediapackage_ingress_logs_table
+                      FieldId: c5ef7bd6-20e5-41c3-bc11-b807dd72b8e3.protocol.0.1712331333047
+                  Values: []
+              SortConfiguration:
+                CategoryItemsLimit:
+                  OtherCategories: INCLUDE
+                SmallMultiplesLimitConfiguration:
+                  OtherCategories: INCLUDE
+              Tooltip:
+                FieldBasedTooltip:
+                  AggregationVisibility: HIDDEN
+                  TooltipFields:
+                  - FieldTooltipItem:
+                      FieldId: c5ef7bd6-20e5-41c3-bc11-b807dd72b8e3.protocol.0.1712331333047
+                      Visibility: VISIBLE
+                  TooltipTitleType: PRIMARY_VALUE
+                SelectedTooltipType: DETAILED
+                TooltipVisibility: VISIBLE
+            ColumnHierarchies: []
+            Subtitle:
+              Visibility: VISIBLE
+            Title:
+              Visibility: VISIBLE
+            VisualId: 1e071a90-1491-4e7e-9d20-0bb8472b96f2
+        - PieChartVisual:
+            Actions: []
+            ChartConfiguration:
+              DataLabels:
+                Overlap: DISABLE_OVERLAP
+                Visibility: VISIBLE
+              DonutOptions:
+                ArcOptions:
+                  ArcThickness: WHOLE
+              FieldWells:
+                PieChartAggregatedFieldWells:
+                  Category:
+                  - CategoricalDimensionField:
+                      Column:
+                        ColumnName: method
+                        DataSetIdentifier: mediapackage_ingress_logs_table
+                      FieldId: c5ef7bd6-20e5-41c3-bc11-b807dd72b8e3.method.0.1712331357468
+                  Values: []
+              SortConfiguration:
+                CategoryItemsLimit:
+                  OtherCategories: INCLUDE
+                SmallMultiplesLimitConfiguration:
+                  OtherCategories: INCLUDE
+              Tooltip:
+                FieldBasedTooltip:
+                  AggregationVisibility: HIDDEN
+                  TooltipFields:
+                  - FieldTooltipItem:
+                      FieldId: c5ef7bd6-20e5-41c3-bc11-b807dd72b8e3.method.0.1712331357468
+                      Visibility: VISIBLE
+                  TooltipTitleType: PRIMARY_VALUE
+                SelectedTooltipType: DETAILED
+                TooltipVisibility: VISIBLE
+            ColumnHierarchies: []
+            Subtitle:
+              Visibility: VISIBLE
+            Title:
+              Visibility: VISIBLE
+            VisualId: cf4e63dc-a4d5-416b-80ff-592dea063246
+        - LineChartVisual:
+            Actions: []
+            ChartConfiguration:
+              DataLabels:
+                Overlap: DISABLE_OVERLAP
+                Visibility: HIDDEN
+              FieldWells:
+                LineChartAggregatedFieldWells:
+                  Category:
+                  - DateDimensionField:
+                      Column:
+                        ColumnName: timestamp
+                        DataSetIdentifier: mediapackage_ingress_logs_table
+                      DateGranularity: MINUTE
+                      FieldId: c5ef7bd6-20e5-41c3-bc11-b807dd72b8e3.timestamp.0.1712331504619
+                      HierarchyId: c5ef7bd6-20e5-41c3-bc11-b807dd72b8e3.timestamp.0.1712331504619
+                  Colors: []
+                  Values:
+                  - NumericalMeasureField:
+                      AggregationFunction:
+                        SimpleNumericalAggregation: AVERAGE
+                      Column:
+                        ColumnName: processingtime
+                        DataSetIdentifier: mediapackage_ingress_logs_table
+                      FieldId: c5ef7bd6-20e5-41c3-bc11-b807dd72b8e3.processingtime.1.1712331509602
+              SortConfiguration:
+                CategoryItemsLimitConfiguration:
+                  OtherCategories: INCLUDE
+                CategorySort:
+                - FieldSort:
+                    Direction: DESC
+                    FieldId: c5ef7bd6-20e5-41c3-bc11-b807dd72b8e3.timestamp.0.1712331504619
+                ColorItemsLimitConfiguration:
+                  OtherCategories: INCLUDE
+                SmallMultiplesLimitConfiguration:
+                  OtherCategories: INCLUDE
+              Tooltip:
+                FieldBasedTooltip:
+                  AggregationVisibility: HIDDEN
+                  TooltipFields:
+                  - FieldTooltipItem:
+                      FieldId: c5ef7bd6-20e5-41c3-bc11-b807dd72b8e3.timestamp.0.1712331504619
+                      Visibility: VISIBLE
+                  - FieldTooltipItem:
+                      FieldId: c5ef7bd6-20e5-41c3-bc11-b807dd72b8e3.processingtime.1.1712331509602
+                      Visibility: VISIBLE
+                  TooltipTitleType: PRIMARY_VALUE
+                SelectedTooltipType: DETAILED
+                TooltipVisibility: VISIBLE
+              Type: LINE
+            ColumnHierarchies:
+            - DateTimeHierarchy:
+                HierarchyId: c5ef7bd6-20e5-41c3-bc11-b807dd72b8e3.timestamp.0.1712331504619
+            Subtitle:
+              Visibility: VISIBLE
+            Title:
+              Visibility: VISIBLE
+            VisualId: 9800bb28-d5d3-40d1-b29d-41ae746be376
+        - LineChartVisual:
+            Actions: []
+            ChartConfiguration:
+              DataLabels:
+                Overlap: DISABLE_OVERLAP
+                Visibility: HIDDEN
+              FieldWells:
+                LineChartAggregatedFieldWells:
+                  Category:
+                  - DateDimensionField:
+                      Column:
+                        ColumnName: timestamp
+                        DataSetIdentifier: mediapackage_ingress_logs_table
+                      FieldId: c5ef7bd6-20e5-41c3-bc11-b807dd72b8e3.timestamp.0.1712331596124
+                      HierarchyId: c5ef7bd6-20e5-41c3-bc11-b807dd72b8e3.timestamp.0.1712331596124
+                  Colors:
+                  - CategoricalDimensionField:
+                      Column:
+                        ColumnName: statuscode
+                        DataSetIdentifier: mediapackage_ingress_logs_table
+                      FieldId: c5ef7bd6-20e5-41c3-bc11-b807dd72b8e3.statuscode.1.1712331605242
+                  Values: []
+              SortConfiguration:
+                CategoryItemsLimitConfiguration:
+                  OtherCategories: INCLUDE
+                CategorySort:
+                - FieldSort:
+                    Direction: DESC
+                    FieldId: c5ef7bd6-20e5-41c3-bc11-b807dd72b8e3.timestamp.0.1712331596124
+                ColorItemsLimitConfiguration:
+                  OtherCategories: INCLUDE
+                SmallMultiplesLimitConfiguration:
+                  OtherCategories: INCLUDE
+              Tooltip:
+                FieldBasedTooltip:
+                  AggregationVisibility: HIDDEN
+                  TooltipFields:
+                  - FieldTooltipItem:
+                      FieldId: c5ef7bd6-20e5-41c3-bc11-b807dd72b8e3.timestamp.0.1712331596124
+                      Visibility: VISIBLE
+                  - FieldTooltipItem:
+                      FieldId: c5ef7bd6-20e5-41c3-bc11-b807dd72b8e3.statuscode.1.1712331605242
+                      Visibility: VISIBLE
+                  TooltipTitleType: PRIMARY_VALUE
+                SelectedTooltipType: DETAILED
+                TooltipVisibility: VISIBLE
+              Type: LINE
+            ColumnHierarchies:
+            - DateTimeHierarchy:
+                HierarchyId: c5ef7bd6-20e5-41c3-bc11-b807dd72b8e3.timestamp.0.1712331596124
+            Subtitle:
+              Visibility: VISIBLE
+            Title:
+              Visibility: VISIBLE
+            VisualId: d14f65d8-772d-47cb-ab5a-93c50e809743
+        - PieChartVisual:
+            Actions: []
+            ChartConfiguration:
+              DataLabels:
+                Overlap: DISABLE_OVERLAP
+                Visibility: VISIBLE
+              DonutOptions:
+                ArcOptions:
+                  ArcThickness: WHOLE
+              FieldWells:
+                PieChartAggregatedFieldWells:
+                  Category:
+                  - CategoricalDimensionField:
+                      Column:
+                        ColumnName: statuscode
+                        DataSetIdentifier: mediapackage_ingress_logs_table
+                      FieldId: c5ef7bd6-20e5-41c3-bc11-b807dd72b8e3.statuscode.1.1712331741428
+                  Values: []
+              SortConfiguration:
+                CategoryItemsLimit:
+                  OtherCategories: INCLUDE
+                SmallMultiplesLimitConfiguration:
+                  OtherCategories: INCLUDE
+              Tooltip:
+                FieldBasedTooltip:
+                  AggregationVisibility: HIDDEN
+                  TooltipFields:
+                  - FieldTooltipItem:
+                      FieldId: c5ef7bd6-20e5-41c3-bc11-b807dd72b8e3.statuscode.1.1712331741428
+                      Visibility: VISIBLE
+                  TooltipTitleType: PRIMARY_VALUE
+                SelectedTooltipType: DETAILED
+                TooltipVisibility: VISIBLE
+            ColumnHierarchies: []
+            Subtitle:
+              Visibility: VISIBLE
+            Title:
+              Visibility: VISIBLE
+            VisualId: 23cb2179-4066-414a-a475-ea6c570e5011
+        - BarChartVisual:
+            Actions: []
+            ChartConfiguration:
+              BarsArrangement: CLUSTERED
+              DataLabels:
+                Overlap: DISABLE_OVERLAP
+                Visibility: HIDDEN
+              FieldWells:
+                BarChartAggregatedFieldWells:
+                  Category:
+                  - CategoricalDimensionField:
+                      Column:
+                        ColumnName: statuscode
+                        DataSetIdentifier: mediapackage_ingress_logs_table
+                      FieldId: c5ef7bd6-20e5-41c3-bc11-b807dd72b8e3.statuscode.0.1712331891992
+                  Colors:
+                  - CategoricalDimensionField:
+                      Column:
+                        ColumnName: channelid
+                        DataSetIdentifier: mediapackage_ingress_logs_table
+                      FieldId: c5ef7bd6-20e5-41c3-bc11-b807dd72b8e3.channelid.2.1712331931738
+                  Values:
+                  - CategoricalMeasureField:
+                      AggregationFunction: COUNT
+                      Column:
+                        ColumnName: channelid
+                        DataSetIdentifier: mediapackage_ingress_logs_table
+                      FieldId: c5ef7bd6-20e5-41c3-bc11-b807dd72b8e3.channelid.1.1712331919560
+              Orientation: HORIZONTAL
+              SortConfiguration:
+                CategoryItemsLimit:
+                  OtherCategories: INCLUDE
+                CategorySort:
+                - FieldSort:
+                    Direction: DESC
+                    FieldId: c5ef7bd6-20e5-41c3-bc11-b807dd72b8e3.statuscode.0.1712331891992
+                ColorItemsLimit:
+                  OtherCategories: INCLUDE
+                SmallMultiplesLimitConfiguration:
+                  OtherCategories: INCLUDE
+              Tooltip:
+                FieldBasedTooltip:
+                  AggregationVisibility: HIDDEN
+                  TooltipFields:
+                  - FieldTooltipItem:
+                      FieldId: c5ef7bd6-20e5-41c3-bc11-b807dd72b8e3.statuscode.0.1712331891992
+                      Visibility: VISIBLE
+                  - FieldTooltipItem:
+                      FieldId: c5ef7bd6-20e5-41c3-bc11-b807dd72b8e3.channelid.2.1712331931738
+                      Visibility: VISIBLE
+                  - FieldTooltipItem:
+                      FieldId: c5ef7bd6-20e5-41c3-bc11-b807dd72b8e3.channelid.2.1712331931738
+                      Visibility: VISIBLE
+                  TooltipTitleType: PRIMARY_VALUE
+                SelectedTooltipType: DETAILED
+                TooltipVisibility: VISIBLE
+            ColumnHierarchies: []
+            Subtitle:
+              Visibility: VISIBLE
+            Title:
+              Visibility: VISIBLE
+            VisualId: ddf2e769-f639-4680-9888-07b7114a0382
+        - LineChartVisual:
+            Actions: []
+            ChartConfiguration:
+              DataLabels:
+                Overlap: DISABLE_OVERLAP
+                Visibility: HIDDEN
+              FieldWells:
+                LineChartAggregatedFieldWells:
+                  Category:
+                  - DateDimensionField:
+                      Column:
+                        ColumnName: timestamp
+                        DataSetIdentifier: mediapackage_ingress_logs_table
+                      DateGranularity: MINUTE
+                      FieldId: c5ef7bd6-20e5-41c3-bc11-b807dd72b8e3.timestamp.0.1712333532090
+                      HierarchyId: c5ef7bd6-20e5-41c3-bc11-b807dd72b8e3.timestamp.0.1712333532090
+                  Colors:
+                  - CategoricalDimensionField:
+                      Column:
+                        ColumnName: requesttype
+                        DataSetIdentifier: mediapackage_ingress_logs_table
+                      FieldId: c5ef7bd6-20e5-41c3-bc11-b807dd72b8e3.requesttype.2.1712334215350
+                  Values:
+                  - CategoricalMeasureField:
+                      AggregationFunction: COUNT
+                      Column:
+                        ColumnName: request
+                        DataSetIdentifier: mediapackage_ingress_logs_table
+                      FieldId: c5ef7bd6-20e5-41c3-bc11-b807dd72b8e3.request.1.1712334070208
+              SortConfiguration:
+                CategoryItemsLimitConfiguration:
+                  OtherCategories: INCLUDE
+                CategorySort:
+                - FieldSort:
+                    Direction: DESC
+                    FieldId: c5ef7bd6-20e5-41c3-bc11-b807dd72b8e3.timestamp.0.1712333532090
+                ColorItemsLimitConfiguration:
+                  OtherCategories: INCLUDE
+                SmallMultiplesLimitConfiguration:
+                  OtherCategories: INCLUDE
+              Tooltip:
+                FieldBasedTooltip:
+                  AggregationVisibility: HIDDEN
+                  TooltipFields:
+                  - FieldTooltipItem:
+                      FieldId: c5ef7bd6-20e5-41c3-bc11-b807dd72b8e3.timestamp.0.1712333532090
+                      Visibility: VISIBLE
+                  - FieldTooltipItem:
+                      FieldId: c5ef7bd6-20e5-41c3-bc11-b807dd72b8e3.request.1.1712334070208
+                      Visibility: VISIBLE
+                  - FieldTooltipItem:
+                      FieldId: c5ef7bd6-20e5-41c3-bc11-b807dd72b8e3.requesttype.2.1712334215350
+                      Visibility: VISIBLE
+                  TooltipTitleType: PRIMARY_VALUE
+                SelectedTooltipType: DETAILED
+                TooltipVisibility: VISIBLE
+              Type: STACKED_AREA
+            ColumnHierarchies:
+            - DateTimeHierarchy:
+                HierarchyId: c5ef7bd6-20e5-41c3-bc11-b807dd72b8e3.timestamp.0.1712333532090
+            Subtitle:
+              Visibility: VISIBLE
+            Title:
+              Visibility: VISIBLE
+            VisualId: 29b49c53-3ca5-4ac8-8261-a5472bd2e856
+datasets:
+  mediapackage_ingress_logs_table:
+    data:
+      DataSetId: 3427bd49-e8aa-4043-9804-df83c82ca009
+      Name: mediapackage_ingress_logs_table
+      PhysicalTableMap:
+        bc1b0365-e195-4446-86cf-9f1ec01f1126:
+          RelationalTable:
+            DataSourceArn: ${athena_datasource_arn}
+            Catalog: AwsDataCatalog
+            Schema: ${athena_database_name}
+            Name: mediapackage_ingress_logs_table
+            InputColumns:
+            - Name: timestamp
+              Type: DATETIME
+            - Name: clientip
+              Type: STRING
+            - Name: processingtime
+              Type: DECIMAL
+            - Name: statuscode
+              Type: STRING
+            - Name: receivedbytes
+              Type: INTEGER
+            - Name: sentbytes
+              Type: INTEGER
+            - Name: method
+              Type: STRING
+            - Name: request
+              Type: STRING
+            - Name: requesttype
+              Type: STRING
+            - Name: protocol
+              Type: STRING
+            - Name: useragent
+              Type: STRING
+            - Name: domainname
+              Type: STRING
+            - Name: requestid
+              Type: STRING
+            - Name: account
+              Type: STRING
+            - Name: channelid
+              Type: STRING
+            - Name: channelarn
+              Type: STRING
+            - Name: date
+              Type: STRING
+      LogicalTableMap:
+        c5ef7bd6-20e5-41c3-bc11-b807dd72b8e3:
+          Alias: mediapackage_ingress_logs_table
+          Source:
+            PhysicalTableId: bc1b0365-e195-4446-86cf-9f1ec01f1126
+      ImportMode: DIRECT_QUERY
+    dependsOn:
+      views:
+      - mediapackage_ingress_logs_table
+views:
+  mediapackage_ingress_logs_table:
+    data: |-
+      CREATE EXTERNAL TABLE `mediapackage_ingress_logs_table`(
+        `timestamp` timestamp,
+        `clientip` string,
+        `processingtime` double,
+        `statuscode` string,
+        `receivedbytes` int,
+        `sentbytes` int,
+        `method` string,
+        `request` string,
+        `requesttype` string,
+        `protocol` string,
+        `useragent` string,
+        `domainname` string,
+        `requestid` string,
+        `account` string,
+        `channelid` string,
+        `channelarn` string)
+      PARTITIONED BY (
+        `date` string)
+      ROW FORMAT SERDE
+        'org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe'
+      STORED AS INPUTFORMAT
+        'org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat'
+      OUTPUTFORMAT
+        'org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat'
+      LOCATION
+        '${s3path}'
+      TBLPROPERTIES (
+        'projection.date.format'='yyyy/MM/dd',
+        'projection.date.interval'='1',
+        'projection.date.interval.unit'='DAYS',
+        'projection.date.range'='2024/01/01,NOW',
+        'projection.date.type'='date',
+        'projection.enabled'='true',
+        'storage.location.template'='${s3path}${date}/')
+    parameters:
+      s3path:
+        default: s3://mediapackage-logs-analysis/mediapackage-processed-logs/ingress/
+        description: S3 Path for mediapackage_ingress_logs_table table

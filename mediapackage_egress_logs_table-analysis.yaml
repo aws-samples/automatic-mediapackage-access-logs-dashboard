@@ -1,0 +1,1041 @@
+dashboards:
+  MEDIAPACKAGE_EGRESS_LOGS_TABLE ANALYSIS:
+    dependsOn:
+      datasets:
+      - mediapackage_egress_logs_table
+    name: mediapackage_egress_logs_table analysis
+    dashboardId: mediapackage-egress-logs-table-analysis
+    data: |-
+      AnalysisDefaults:
+        DefaultNewSheetConfiguration:
+          InteractiveLayoutConfiguration:
+            Grid:
+              CanvasSizeOptions:
+                ScreenCanvasSizeOptions:
+                  OptimizedViewPortWidth: 1600px
+                  ResizeOption: FIXED
+          SheetContentType: INTERACTIVE
+      CalculatedFields: []
+      DataSetIdentifierDeclarations:
+      - DataSetArn: arn:aws:quicksight:::dataset/5dc26f2f-a6b7-44ff-8d3a-767e973a591d
+        Identifier: mediapackage_egress_logs_table
+      FilterGroups:
+      - CrossDataset: SINGLE_DATASET
+        FilterGroupId: d93e7506-f536-4755-b2b7-c5aad6f98962
+        Filters:
+        - CategoryFilter:
+            Column:
+              ColumnName: requesttype
+              DataSetIdentifier: mediapackage_egress_logs_table
+            Configuration:
+              CustomFilterConfiguration:
+                MatchOperator: EQUALS
+                NullOption: NON_NULLS_ONLY
+                ParameterName: ContentType
+            FilterId: cde2578c-8bc1-4d68-9330-35f6e70984e7
+        ScopeConfiguration:
+          SelectedSheets:
+            SheetVisualScopingConfigurations:
+            - Scope: ALL_VISUALS
+              SheetId: 9a62b88d-a50b-4b5f-afdd-c960a31c7f56
+        Status: ENABLED
+      - CrossDataset: SINGLE_DATASET
+        FilterGroupId: c8653494-9e0a-4d75-b228-302c48068bb9
+        Filters:
+        - TimeRangeFilter:
+            Column:
+              ColumnName: timestamp
+              DataSetIdentifier: mediapackage_egress_logs_table
+            FilterId: 1255e207-9c18-4f39-b64a-6873d0f128fa
+            IncludeMaximum: false
+            IncludeMinimum: true
+            NullOption: NON_NULLS_ONLY
+            RangeMaximumValue:
+              Parameter: EndDate
+            RangeMinimumValue:
+              Parameter: StartDate
+            TimeGranularity: DAY
+        ScopeConfiguration:
+          SelectedSheets:
+            SheetVisualScopingConfigurations:
+            - Scope: ALL_VISUALS
+              SheetId: 9a62b88d-a50b-4b5f-afdd-c960a31c7f56
+        Status: ENABLED
+      ParameterDeclarations:
+      - StringParameterDeclaration:
+          DefaultValues: {}
+          Name: ContentType
+          ParameterValueType: MULTI_VALUED
+          ValueWhenUnset:
+            ValueWhenUnsetOption: RECOMMENDED_VALUE
+      - DateTimeParameterDeclaration:
+          DefaultValues:
+            RollingDate:
+              Expression: addDateTime(-1, 'DD', truncDate('DD', now()))
+            StaticValues: []
+          Name: StartDate
+          TimeGranularity: MINUTE
+      - DateTimeParameterDeclaration:
+          DefaultValues:
+            RollingDate:
+              Expression: truncDate('DD', now())
+            StaticValues: []
+          Name: EndDate
+          TimeGranularity: MINUTE
+      Sheets:
+      - ContentType: INTERACTIVE
+        Layouts:
+        - Configuration:
+            GridLayout:
+              CanvasSizeOptions:
+                ScreenCanvasSizeOptions:
+                  OptimizedViewPortWidth: 1600px
+                  ResizeOption: FIXED
+              Elements:
+              - ColumnIndex: 0
+                ColumnSpan: 36
+                ElementId: 835c65c0-ce1c-4229-b7b3-9cba1b55c08e
+                ElementType: TEXT_BOX
+                RowIndex: 0
+                RowSpan: 9
+              - ColumnIndex: 0
+                ColumnSpan: 11
+                ElementId: 63dca80c-4295-4373-848f-48c5e1fdcb76
+                ElementType: VISUAL
+                RowIndex: 9
+                RowSpan: 7
+              - ColumnIndex: 11
+                ColumnSpan: 12
+                ElementId: 89d700cb-7f38-4118-a855-32e9ffbc56a0
+                ElementType: VISUAL
+                RowIndex: 9
+                RowSpan: 7
+              - ColumnIndex: 23
+                ColumnSpan: 13
+                ElementId: 679bf095-db2b-44ae-9995-04a817f82c1d
+                ElementType: VISUAL
+                RowIndex: 9
+                RowSpan: 7
+              - ColumnIndex: 0
+                ColumnSpan: 9
+                ElementId: f204108f-a335-48f9-9841-26183ac4b25e
+                ElementType: VISUAL
+                RowIndex: 16
+                RowSpan: 8
+              - ColumnIndex: 9
+                ColumnSpan: 9
+                ElementId: d2e3f669-27c4-4712-a2c1-aa4c3bc29a36
+                ElementType: VISUAL
+                RowIndex: 16
+                RowSpan: 8
+              - ColumnIndex: 18
+                ColumnSpan: 9
+                ElementId: 0cd4daa7-6dc2-458b-ab42-03d89987366c
+                ElementType: VISUAL
+                RowIndex: 16
+                RowSpan: 8
+              - ColumnIndex: 27
+                ColumnSpan: 9
+                ElementId: 68cd0fe8-78eb-4104-a49d-6d66b9dc7e0c
+                ElementType: VISUAL
+                RowIndex: 16
+                RowSpan: 8
+              - ColumnIndex: 0
+                ColumnSpan: 13
+                ElementId: c455a353-0e59-476f-b8bf-0e3a0c2cdab4
+                ElementType: VISUAL
+                RowIndex: 24
+                RowSpan: 8
+              - ColumnIndex: 13
+                ColumnSpan: 11
+                ElementId: 152879cc-2c4d-44ad-9105-c847f5bd6453
+                ElementType: VISUAL
+                RowIndex: 24
+                RowSpan: 8
+              - ColumnIndex: 25
+                ColumnSpan: 11
+                ElementId: b422f43a-ab32-4d5d-aeae-ccd7611899b9
+                ElementType: VISUAL
+                RowIndex: 24
+                RowSpan: 8
+              - ColumnIndex: 0
+                ColumnSpan: 16
+                ElementId: 8efc50fc-8654-496a-965a-073bd3f644fd
+                ElementType: VISUAL
+                RowIndex: 32
+                RowSpan: 9
+              - ColumnIndex: 21
+                ColumnSpan: 15
+                ElementId: e15b2fde-9f3a-49c9-8fe3-e47bd65f262e
+                ElementType: VISUAL
+                RowIndex: 32
+                RowSpan: 9
+        Name: Sheet 1
+        ParameterControls:
+        - DateTimePicker:
+            DisplayOptions:
+              DateTimeFormat: YYYY/MM/DD HH:mm:ss
+              TitleOptions:
+                FontConfiguration:
+                  FontSize:
+                    Relative: MEDIUM
+                Visibility: VISIBLE
+            ParameterControlId: 7ce6e7d1-4949-417c-af01-c66b284d2fc3
+            SourceParameterName: StartDate
+            Title: Start Date
+        - DateTimePicker:
+            DisplayOptions:
+              DateTimeFormat: YYYY/MM/DD HH:mm:ss
+              TitleOptions:
+                FontConfiguration:
+                  FontSize:
+                    Relative: MEDIUM
+                Visibility: VISIBLE
+            ParameterControlId: a6b89042-62ea-4f80-997c-aba41096f6a3
+            SourceParameterName: EndDate
+            Title: End Date
+        - Dropdown:
+            DisplayOptions:
+              SelectAllOptions:
+                Visibility: VISIBLE
+              TitleOptions:
+                FontConfiguration:
+                  FontSize:
+                    Relative: MEDIUM
+                Visibility: VISIBLE
+            ParameterControlId: 21991875-5a54-4310-8615-19f7fe52b0c0
+            SelectableValues:
+              LinkToDataSetColumn:
+                ColumnName: requesttype
+                DataSetIdentifier: mediapackage_egress_logs_table
+            SourceParameterName: ContentType
+            Title: Content_Type
+            Type: MULTI_SELECT
+        SheetControlLayouts:
+        - Configuration:
+            GridLayout:
+              Elements:
+              - ColumnSpan: 2
+                ElementId: 21991875-5a54-4310-8615-19f7fe52b0c0
+                ElementType: PARAMETER_CONTROL
+                RowSpan: 1
+              - ColumnSpan: 2
+                ElementId: 7ce6e7d1-4949-417c-af01-c66b284d2fc3
+                ElementType: PARAMETER_CONTROL
+                RowSpan: 1
+              - ColumnSpan: 2
+                ElementId: a6b89042-62ea-4f80-997c-aba41096f6a3
+                ElementType: PARAMETER_CONTROL
+                RowSpan: 1
+        SheetId: 9a62b88d-a50b-4b5f-afdd-c960a31c7f56
+        TextBoxes:
+        - Content: |-
+            <text-box>
+              The following graphs are based on Egress MediaPackage Access Logs. The dashboard provides customers with near real-time insights into key egress metrics including:
+              <br/>
+              <br/>
+              - Total egress requests
+              <br/>
+              - Egress requests per endpoint
+              <br/>
+              - Status code distribution
+              <br/>
+              - Top channel IDs
+              <br/>
+              - Domain names
+              <br/>
+              <br/>
+              Customers can also gain insights into:
+              <br/>
+              <br/>
+              - Top client IP addresses
+              <br/>
+              - Popular user agents
+              <br/>
+              - Protocol breakdown (HTTP/HTTPS)
+              <br/>
+              - Content type distribution (manifests vs segments)
+              <br/>
+              <br/>
+              This gives customers visibility into how their streams are being accessed from the edge in near real-time. For more details on MediaPackage Egress logging and the available metrics, please refer to the AWS documentation at:
+              <br/>
+              <br/>
+              https://docs.aws.amazon.com/mediapackage/latest/ug/access-logging.html
+            </text-box>
+          SheetTextBoxId: 835c65c0-ce1c-4229-b7b3-9cba1b55c08e
+        Visuals:
+        - PieChartVisual:
+            Actions: []
+            ChartConfiguration:
+              DataLabels:
+                Overlap: DISABLE_OVERLAP
+                Visibility: VISIBLE
+              DonutOptions:
+                ArcOptions:
+                  ArcThickness: MEDIUM
+              FieldWells:
+                PieChartAggregatedFieldWells:
+                  Category:
+                  - CategoricalDimensionField:
+                      Column:
+                        ColumnName: protocol
+                        DataSetIdentifier: mediapackage_egress_logs_table
+                      FieldId: ee1fbe59-fe32-414b-aa80-a3c6b6d39199.protocol.0.1710345238517
+                  Values: []
+              SortConfiguration:
+                CategoryItemsLimit:
+                  OtherCategories: INCLUDE
+                SmallMultiplesLimitConfiguration:
+                  OtherCategories: INCLUDE
+              Tooltip:
+                FieldBasedTooltip:
+                  AggregationVisibility: HIDDEN
+                  TooltipFields:
+                  - FieldTooltipItem:
+                      FieldId: ee1fbe59-fe32-414b-aa80-a3c6b6d39199.protocol.0.1710345238517
+                      Visibility: VISIBLE
+                  TooltipTitleType: PRIMARY_VALUE
+                SelectedTooltipType: DETAILED
+                TooltipVisibility: VISIBLE
+            ColumnHierarchies: []
+            Subtitle:
+              Visibility: VISIBLE
+            Title:
+              Visibility: VISIBLE
+            VisualId: 0cd4daa7-6dc2-458b-ab42-03d89987366c
+        - LineChartVisual:
+            Actions: []
+            ChartConfiguration:
+              DataLabels:
+                Overlap: DISABLE_OVERLAP
+                Visibility: HIDDEN
+              FieldWells:
+                LineChartAggregatedFieldWells:
+                  Category:
+                  - DateDimensionField:
+                      Column:
+                        ColumnName: timestamp
+                        DataSetIdentifier: mediapackage_egress_logs_table
+                      DateGranularity: MINUTE
+                      FieldId: ee1fbe59-fe32-414b-aa80-a3c6b6d39199.timestamp.0.1710345267213
+                      HierarchyId: ee1fbe59-fe32-414b-aa80-a3c6b6d39199.timestamp.0.1710345267213
+                  Colors:
+                  - CategoricalDimensionField:
+                      Column:
+                        ColumnName: statuscode
+                        DataSetIdentifier: mediapackage_egress_logs_table
+                      FieldId: ee1fbe59-fe32-414b-aa80-a3c6b6d39199.statuscode.2.1710345312438
+                  Values:
+                  - CategoricalMeasureField:
+                      AggregationFunction: COUNT
+                      Column:
+                        ColumnName: statuscode
+                        DataSetIdentifier: mediapackage_egress_logs_table
+                      FieldId: ee1fbe59-fe32-414b-aa80-a3c6b6d39199.statuscode.1.1710345278188
+              SortConfiguration:
+                CategoryItemsLimitConfiguration:
+                  OtherCategories: INCLUDE
+                CategorySort:
+                - FieldSort:
+                    Direction: DESC
+                    FieldId: ee1fbe59-fe32-414b-aa80-a3c6b6d39199.timestamp.0.1710345267213
+                ColorItemsLimitConfiguration:
+                  OtherCategories: INCLUDE
+                SmallMultiplesLimitConfiguration:
+                  OtherCategories: INCLUDE
+              Tooltip:
+                FieldBasedTooltip:
+                  AggregationVisibility: HIDDEN
+                  TooltipFields:
+                  - FieldTooltipItem:
+                      FieldId: ee1fbe59-fe32-414b-aa80-a3c6b6d39199.timestamp.0.1710345267213
+                      Visibility: VISIBLE
+                  - FieldTooltipItem:
+                      FieldId: ee1fbe59-fe32-414b-aa80-a3c6b6d39199.statuscode.2.1710345312438
+                      Visibility: VISIBLE
+                  - FieldTooltipItem:
+                      FieldId: ee1fbe59-fe32-414b-aa80-a3c6b6d39199.statuscode.2.1710345312438
+                      Visibility: VISIBLE
+                  TooltipTitleType: PRIMARY_VALUE
+                SelectedTooltipType: DETAILED
+                TooltipVisibility: VISIBLE
+              Type: LINE
+            ColumnHierarchies:
+            - DateTimeHierarchy:
+                HierarchyId: ee1fbe59-fe32-414b-aa80-a3c6b6d39199.timestamp.0.1710345267213
+            Subtitle:
+              Visibility: VISIBLE
+            Title:
+              Visibility: VISIBLE
+            VisualId: 679bf095-db2b-44ae-9995-04a817f82c1d
+        - BarChartVisual:
+            Actions: []
+            ChartConfiguration:
+              BarsArrangement: STACKED_PERCENT
+              DataLabels:
+                Overlap: DISABLE_OVERLAP
+                Visibility: HIDDEN
+              FieldWells:
+                BarChartAggregatedFieldWells:
+                  Category:
+                  - DateDimensionField:
+                      Column:
+                        ColumnName: timestamp
+                        DataSetIdentifier: mediapackage_egress_logs_table
+                      FieldId: ee1fbe59-fe32-414b-aa80-a3c6b6d39199.timestamp.0.1710345511597
+                      HierarchyId: ee1fbe59-fe32-414b-aa80-a3c6b6d39199.timestamp.0.1710345511597
+                  Colors: []
+                  Values:
+                  - NumericalMeasureField:
+                      AggregationFunction:
+                        SimpleNumericalAggregation: SUM
+                      Column:
+                        ColumnName: receivedbytes
+                        DataSetIdentifier: mediapackage_egress_logs_table
+                      FieldId: ee1fbe59-fe32-414b-aa80-a3c6b6d39199.receivedbytes.1.1710345526976
+                  - NumericalMeasureField:
+                      AggregationFunction:
+                        SimpleNumericalAggregation: SUM
+                      Column:
+                        ColumnName: sentbytes
+                        DataSetIdentifier: mediapackage_egress_logs_table
+                      FieldId: ee1fbe59-fe32-414b-aa80-a3c6b6d39199.sentbytes.2.1710345530272
+              Orientation: VERTICAL
+              SortConfiguration:
+                CategoryItemsLimit:
+                  OtherCategories: INCLUDE
+                CategorySort:
+                - FieldSort:
+                    Direction: ASC
+                    FieldId: ee1fbe59-fe32-414b-aa80-a3c6b6d39199.timestamp.0.1710345511597
+                ColorItemsLimit:
+                  OtherCategories: INCLUDE
+                SmallMultiplesLimitConfiguration:
+                  OtherCategories: INCLUDE
+              Tooltip:
+                FieldBasedTooltip:
+                  AggregationVisibility: HIDDEN
+                  TooltipFields:
+                  - FieldTooltipItem:
+                      FieldId: ee1fbe59-fe32-414b-aa80-a3c6b6d39199.timestamp.0.1710345511597
+                      Visibility: VISIBLE
+                  - FieldTooltipItem:
+                      FieldId: ee1fbe59-fe32-414b-aa80-a3c6b6d39199.receivedbytes.1.1710345526976
+                      Visibility: VISIBLE
+                  - FieldTooltipItem:
+                      FieldId: ee1fbe59-fe32-414b-aa80-a3c6b6d39199.sentbytes.2.1710345530272
+                      Visibility: VISIBLE
+                  TooltipTitleType: PRIMARY_VALUE
+                SelectedTooltipType: DETAILED
+                TooltipVisibility: VISIBLE
+            ColumnHierarchies:
+            - DateTimeHierarchy:
+                HierarchyId: ee1fbe59-fe32-414b-aa80-a3c6b6d39199.timestamp.0.1710345511597
+            Subtitle:
+              Visibility: VISIBLE
+            Title:
+              Visibility: VISIBLE
+            VisualId: e15b2fde-9f3a-49c9-8fe3-e47bd65f262e
+        - PieChartVisual:
+            Actions: []
+            ChartConfiguration:
+              DataLabels:
+                Overlap: DISABLE_OVERLAP
+                Visibility: VISIBLE
+              DonutOptions:
+                ArcOptions:
+                  ArcThickness: WHOLE
+              FieldWells:
+                PieChartAggregatedFieldWells:
+                  Category:
+                  - CategoricalDimensionField:
+                      Column:
+                        ColumnName: requesttype
+                        DataSetIdentifier: mediapackage_egress_logs_table
+                      FieldId: ee1fbe59-fe32-414b-aa80-a3c6b6d39199.requesttype.0.1710345566078
+                  Values: []
+              SortConfiguration:
+                CategoryItemsLimit:
+                  OtherCategories: INCLUDE
+                SmallMultiplesLimitConfiguration:
+                  OtherCategories: INCLUDE
+              Tooltip:
+                FieldBasedTooltip:
+                  AggregationVisibility: HIDDEN
+                  TooltipFields:
+                  - FieldTooltipItem:
+                      FieldId: ee1fbe59-fe32-414b-aa80-a3c6b6d39199.requesttype.0.1710345566078
+                      Visibility: VISIBLE
+                  TooltipTitleType: PRIMARY_VALUE
+                SelectedTooltipType: DETAILED
+                TooltipVisibility: VISIBLE
+            ColumnHierarchies: []
+            Subtitle:
+              Visibility: VISIBLE
+            Title:
+              Visibility: VISIBLE
+            VisualId: 68cd0fe8-78eb-4104-a49d-6d66b9dc7e0c
+        - LineChartVisual:
+            Actions: []
+            ChartConfiguration:
+              DataLabels:
+                Overlap: DISABLE_OVERLAP
+                Visibility: HIDDEN
+              FieldWells:
+                LineChartAggregatedFieldWells:
+                  Category:
+                  - DateDimensionField:
+                      Column:
+                        ColumnName: timestamp
+                        DataSetIdentifier: mediapackage_egress_logs_table
+                      DateGranularity: MINUTE
+                      FieldId: ee1fbe59-fe32-414b-aa80-a3c6b6d39199.timestamp.0.1710346520673
+                      HierarchyId: ee1fbe59-fe32-414b-aa80-a3c6b6d39199.timestamp.0.1710346520673
+                  Colors:
+                  - CategoricalDimensionField:
+                      Column:
+                        ColumnName: requesttype
+                        DataSetIdentifier: mediapackage_egress_logs_table
+                      FieldId: ee1fbe59-fe32-414b-aa80-a3c6b6d39199.requesttype.2.1710346548677
+                  Values:
+                  - CategoricalMeasureField:
+                      AggregationFunction: COUNT
+                      Column:
+                        ColumnName: request
+                        DataSetIdentifier: mediapackage_egress_logs_table
+                      FieldId: ee1fbe59-fe32-414b-aa80-a3c6b6d39199.request.1.1710346540303
+              SortConfiguration:
+                CategoryItemsLimitConfiguration:
+                  OtherCategories: INCLUDE
+                CategorySort:
+                - FieldSort:
+                    Direction: DESC
+                    FieldId: ee1fbe59-fe32-414b-aa80-a3c6b6d39199.timestamp.0.1710346520673
+                ColorItemsLimitConfiguration:
+                  OtherCategories: INCLUDE
+                SmallMultiplesLimitConfiguration:
+                  OtherCategories: INCLUDE
+              Tooltip:
+                FieldBasedTooltip:
+                  AggregationVisibility: HIDDEN
+                  TooltipFields:
+                  - FieldTooltipItem:
+                      FieldId: ee1fbe59-fe32-414b-aa80-a3c6b6d39199.timestamp.0.1710346520673
+                      Visibility: VISIBLE
+                  - FieldTooltipItem:
+                      FieldId: ee1fbe59-fe32-414b-aa80-a3c6b6d39199.request.1.1710346540303
+                      Visibility: VISIBLE
+                  - FieldTooltipItem:
+                      FieldId: ee1fbe59-fe32-414b-aa80-a3c6b6d39199.requesttype.2.1710346548677
+                      Visibility: VISIBLE
+                  TooltipTitleType: PRIMARY_VALUE
+                SelectedTooltipType: DETAILED
+                TooltipVisibility: VISIBLE
+              Type: LINE
+            ColumnHierarchies:
+            - DateTimeHierarchy:
+                HierarchyId: ee1fbe59-fe32-414b-aa80-a3c6b6d39199.timestamp.0.1710346520673
+            Subtitle:
+              Visibility: VISIBLE
+            Title:
+              Visibility: VISIBLE
+            VisualId: b422f43a-ab32-4d5d-aeae-ccd7611899b9
+        - PieChartVisual:
+            Actions: []
+            ChartConfiguration:
+              DataLabels:
+                Overlap: DISABLE_OVERLAP
+                Visibility: VISIBLE
+              DonutOptions:
+                ArcOptions:
+                  ArcThickness: WHOLE
+              FieldWells:
+                PieChartAggregatedFieldWells:
+                  Category:
+                  - CategoricalDimensionField:
+                      Column:
+                        ColumnName: clientip
+                        DataSetIdentifier: mediapackage_egress_logs_table
+                      FieldId: ee1fbe59-fe32-414b-aa80-a3c6b6d39199.clientip.0.1710346702318
+                  Values: []
+              SortConfiguration:
+                CategoryItemsLimit:
+                  OtherCategories: INCLUDE
+                SmallMultiplesLimitConfiguration:
+                  OtherCategories: INCLUDE
+              Tooltip:
+                FieldBasedTooltip:
+                  AggregationVisibility: HIDDEN
+                  TooltipFields:
+                  - FieldTooltipItem:
+                      FieldId: ee1fbe59-fe32-414b-aa80-a3c6b6d39199.clientip.0.1710346702318
+                      Visibility: VISIBLE
+                  TooltipTitleType: PRIMARY_VALUE
+                SelectedTooltipType: DETAILED
+                TooltipVisibility: VISIBLE
+            ColumnHierarchies: []
+            Subtitle:
+              Visibility: VISIBLE
+            Title:
+              Visibility: VISIBLE
+            VisualId: f204108f-a335-48f9-9841-26183ac4b25e
+        - PieChartVisual:
+            Actions: []
+            ChartConfiguration:
+              DataLabels:
+                Overlap: DISABLE_OVERLAP
+                Visibility: VISIBLE
+              DonutOptions:
+                ArcOptions:
+                  ArcThickness: WHOLE
+              FieldWells:
+                PieChartAggregatedFieldWells:
+                  Category:
+                  - CategoricalDimensionField:
+                      Column:
+                        ColumnName: useragent
+                        DataSetIdentifier: mediapackage_egress_logs_table
+                      FieldId: ee1fbe59-fe32-414b-aa80-a3c6b6d39199.useragent.0.1710346717280
+                  Values: []
+              SortConfiguration:
+                CategoryItemsLimit:
+                  OtherCategories: INCLUDE
+                SmallMultiplesLimitConfiguration:
+                  OtherCategories: INCLUDE
+              Tooltip:
+                FieldBasedTooltip:
+                  AggregationVisibility: HIDDEN
+                  TooltipFields:
+                  - FieldTooltipItem:
+                      FieldId: ee1fbe59-fe32-414b-aa80-a3c6b6d39199.useragent.0.1710346717280
+                      Visibility: VISIBLE
+                  TooltipTitleType: PRIMARY_VALUE
+                SelectedTooltipType: DETAILED
+                TooltipVisibility: VISIBLE
+            ColumnHierarchies: []
+            Subtitle:
+              Visibility: VISIBLE
+            Title:
+              Visibility: VISIBLE
+            VisualId: d2e3f669-27c4-4712-a2c1-aa4c3bc29a36
+        - LineChartVisual:
+            Actions: []
+            ChartConfiguration:
+              DataLabels:
+                Overlap: DISABLE_OVERLAP
+                Visibility: HIDDEN
+              FieldWells:
+                LineChartAggregatedFieldWells:
+                  Category:
+                  - DateDimensionField:
+                      Column:
+                        ColumnName: timestamp
+                        DataSetIdentifier: mediapackage_egress_logs_table
+                      DateGranularity: MINUTE
+                      FieldId: ee1fbe59-fe32-414b-aa80-a3c6b6d39199.timestamp.0.1710346743628
+                      HierarchyId: ee1fbe59-fe32-414b-aa80-a3c6b6d39199.timestamp.0.1710346743628
+                  Colors:
+                  - CategoricalDimensionField:
+                      Column:
+                        ColumnName: endpointid
+                        DataSetIdentifier: mediapackage_egress_logs_table
+                      FieldId: ee1fbe59-fe32-414b-aa80-a3c6b6d39199.endpointid.2.1710346780562
+                  Values:
+                  - CategoricalMeasureField:
+                      AggregationFunction: COUNT
+                      Column:
+                        ColumnName: request
+                        DataSetIdentifier: mediapackage_egress_logs_table
+                      FieldId: ee1fbe59-fe32-414b-aa80-a3c6b6d39199.request.1.1710346760816
+              Legend:
+                Width: 186px
+              SortConfiguration:
+                CategoryItemsLimitConfiguration:
+                  OtherCategories: INCLUDE
+                CategorySort:
+                - FieldSort:
+                    Direction: DESC
+                    FieldId: ee1fbe59-fe32-414b-aa80-a3c6b6d39199.timestamp.0.1710346743628
+                ColorItemsLimitConfiguration:
+                  OtherCategories: INCLUDE
+                SmallMultiplesLimitConfiguration:
+                  OtherCategories: INCLUDE
+              Tooltip:
+                FieldBasedTooltip:
+                  AggregationVisibility: HIDDEN
+                  TooltipFields:
+                  - FieldTooltipItem:
+                      FieldId: ee1fbe59-fe32-414b-aa80-a3c6b6d39199.timestamp.0.1710346743628
+                      Visibility: VISIBLE
+                  - FieldTooltipItem:
+                      FieldId: ee1fbe59-fe32-414b-aa80-a3c6b6d39199.request.1.1710346760816
+                      Visibility: VISIBLE
+                  - FieldTooltipItem:
+                      FieldId: ee1fbe59-fe32-414b-aa80-a3c6b6d39199.endpointid.2.1710346780562
+                      Visibility: VISIBLE
+                  TooltipTitleType: PRIMARY_VALUE
+                SelectedTooltipType: DETAILED
+                TooltipVisibility: VISIBLE
+              Type: LINE
+            ColumnHierarchies:
+            - DateTimeHierarchy:
+                HierarchyId: ee1fbe59-fe32-414b-aa80-a3c6b6d39199.timestamp.0.1710346743628
+            Subtitle:
+              Visibility: VISIBLE
+            Title:
+              Visibility: VISIBLE
+            VisualId: 89d700cb-7f38-4118-a855-32e9ffbc56a0
+        - LineChartVisual:
+            Actions: []
+            ChartConfiguration:
+              DataLabels:
+                Overlap: DISABLE_OVERLAP
+                Visibility: HIDDEN
+              FieldWells:
+                LineChartAggregatedFieldWells:
+                  Category:
+                  - DateDimensionField:
+                      Column:
+                        ColumnName: timestamp
+                        DataSetIdentifier: mediapackage_egress_logs_table
+                      DateGranularity: MINUTE
+                      FieldId: ee1fbe59-fe32-414b-aa80-a3c6b6d39199.timestamp.0.1710346862926
+                      HierarchyId: ee1fbe59-fe32-414b-aa80-a3c6b6d39199.timestamp.0.1710346862926
+                  Colors:
+                  - CategoricalDimensionField:
+                      Column:
+                        ColumnName: domainname
+                        DataSetIdentifier: mediapackage_egress_logs_table
+                      FieldId: ee1fbe59-fe32-414b-aa80-a3c6b6d39199.domainname.2.1710346880172
+                  Values:
+                  - CategoricalMeasureField:
+                      AggregationFunction: COUNT
+                      Column:
+                        ColumnName: request
+                        DataSetIdentifier: mediapackage_egress_logs_table
+                      FieldId: ee1fbe59-fe32-414b-aa80-a3c6b6d39199.request.1.1710346867339
+              Legend:
+                Width: 229px
+              SortConfiguration:
+                CategoryItemsLimitConfiguration:
+                  OtherCategories: INCLUDE
+                CategorySort:
+                - FieldSort:
+                    Direction: DESC
+                    FieldId: ee1fbe59-fe32-414b-aa80-a3c6b6d39199.timestamp.0.1710346862926
+                ColorItemsLimitConfiguration:
+                  OtherCategories: INCLUDE
+                SmallMultiplesLimitConfiguration:
+                  OtherCategories: INCLUDE
+              Tooltip:
+                FieldBasedTooltip:
+                  AggregationVisibility: HIDDEN
+                  TooltipFields:
+                  - FieldTooltipItem:
+                      FieldId: ee1fbe59-fe32-414b-aa80-a3c6b6d39199.timestamp.0.1710346862926
+                      Visibility: VISIBLE
+                  - FieldTooltipItem:
+                      FieldId: ee1fbe59-fe32-414b-aa80-a3c6b6d39199.request.1.1710346867339
+                      Visibility: VISIBLE
+                  - FieldTooltipItem:
+                      FieldId: ee1fbe59-fe32-414b-aa80-a3c6b6d39199.domainname.2.1710346880172
+                      Visibility: VISIBLE
+                  TooltipTitleType: PRIMARY_VALUE
+                SelectedTooltipType: DETAILED
+                TooltipVisibility: VISIBLE
+              Type: LINE
+            ColumnHierarchies:
+            - DateTimeHierarchy:
+                HierarchyId: ee1fbe59-fe32-414b-aa80-a3c6b6d39199.timestamp.0.1710346862926
+            Subtitle:
+              Visibility: VISIBLE
+            Title:
+              Visibility: VISIBLE
+            VisualId: c455a353-0e59-476f-b8bf-0e3a0c2cdab4
+        - LineChartVisual:
+            Actions: []
+            ChartConfiguration:
+              DataLabels:
+                Overlap: DISABLE_OVERLAP
+                Visibility: HIDDEN
+              FieldWells:
+                LineChartAggregatedFieldWells:
+                  Category:
+                  - DateDimensionField:
+                      Column:
+                        ColumnName: timestamp
+                        DataSetIdentifier: mediapackage_egress_logs_table
+                      DateGranularity: MINUTE
+                      FieldId: ee1fbe59-fe32-414b-aa80-a3c6b6d39199.timestamp.0.1710346914616
+                      HierarchyId: ee1fbe59-fe32-414b-aa80-a3c6b6d39199.timestamp.0.1710346914616
+                  Colors:
+                  - CategoricalDimensionField:
+                      Column:
+                        ColumnName: channelid
+                        DataSetIdentifier: mediapackage_egress_logs_table
+                      FieldId: ee1fbe59-fe32-414b-aa80-a3c6b6d39199.channelid.2.1710346941411
+                  Values:
+                  - CategoricalMeasureField:
+                      AggregationFunction: COUNT
+                      Column:
+                        ColumnName: request
+                        DataSetIdentifier: mediapackage_egress_logs_table
+                      FieldId: ee1fbe59-fe32-414b-aa80-a3c6b6d39199.request.1.1710346916466
+              SortConfiguration:
+                CategoryItemsLimitConfiguration:
+                  OtherCategories: INCLUDE
+                CategorySort:
+                - FieldSort:
+                    Direction: DESC
+                    FieldId: ee1fbe59-fe32-414b-aa80-a3c6b6d39199.timestamp.0.1710346914616
+                ColorItemsLimitConfiguration:
+                  OtherCategories: INCLUDE
+                SmallMultiplesLimitConfiguration:
+                  OtherCategories: INCLUDE
+              Tooltip:
+                FieldBasedTooltip:
+                  AggregationVisibility: HIDDEN
+                  TooltipFields:
+                  - FieldTooltipItem:
+                      FieldId: ee1fbe59-fe32-414b-aa80-a3c6b6d39199.timestamp.0.1710346914616
+                      Visibility: VISIBLE
+                  - FieldTooltipItem:
+                      FieldId: ee1fbe59-fe32-414b-aa80-a3c6b6d39199.request.1.1710346916466
+                      Visibility: VISIBLE
+                  - FieldTooltipItem:
+                      FieldId: ee1fbe59-fe32-414b-aa80-a3c6b6d39199.channelid.2.1710346941411
+                      Visibility: VISIBLE
+                  TooltipTitleType: PRIMARY_VALUE
+                SelectedTooltipType: DETAILED
+                TooltipVisibility: VISIBLE
+              Type: LINE
+            ColumnHierarchies:
+            - DateTimeHierarchy:
+                HierarchyId: ee1fbe59-fe32-414b-aa80-a3c6b6d39199.timestamp.0.1710346914616
+            Subtitle:
+              Visibility: VISIBLE
+            Title:
+              Visibility: VISIBLE
+            VisualId: 152879cc-2c4d-44ad-9105-c847f5bd6453
+        - BarChartVisual:
+            Actions: []
+            ChartConfiguration:
+              BarsArrangement: CLUSTERED
+              CategoryAxis:
+                AxisLineVisibility: HIDDEN
+              CategoryLabelOptions:
+                AxisLabelOptions:
+                - ApplyTo:
+                    Column:
+                      ColumnName: statuscode
+                      DataSetIdentifier: mediapackage_egress_logs_table
+                    FieldId: ee1fbe59-fe32-414b-aa80-a3c6b6d39199.statuscode
+                  CustomLabel: Statuscode
+              DataLabels:
+                Overlap: DISABLE_OVERLAP
+                Visibility: VISIBLE
+              FieldWells:
+                BarChartAggregatedFieldWells:
+                  Category:
+                  - CategoricalDimensionField:
+                      Column:
+                        ColumnName: statuscode
+                        DataSetIdentifier: mediapackage_egress_logs_table
+                      FieldId: ee1fbe59-fe32-414b-aa80-a3c6b6d39199.statuscode
+                  Colors: []
+                  Values:
+                  - CategoricalMeasureField:
+                      AggregationFunction: COUNT
+                      Column:
+                        ColumnName: request
+                        DataSetIdentifier: mediapackage_egress_logs_table
+                      FieldId: ee1fbe59-fe32-414b-aa80-a3c6b6d39199.request
+              Legend:
+                Title:
+                  Visibility: VISIBLE
+                Visibility: VISIBLE
+              Orientation: HORIZONTAL
+              SortConfiguration:
+                CategoryItemsLimit:
+                  ItemsLimit: 100
+                CategorySort:
+                - FieldSort:
+                    Direction: DESC
+                    FieldId: ee1fbe59-fe32-414b-aa80-a3c6b6d39199.request
+              ValueLabelOptions:
+                AxisLabelOptions:
+                - ApplyTo:
+                    Column:
+                      ColumnName: request
+                      DataSetIdentifier: mediapackage_egress_logs_table
+                    FieldId: ee1fbe59-fe32-414b-aa80-a3c6b6d39199.request
+                  CustomLabel: Request(COUNT)
+            ColumnHierarchies: []
+            Subtitle:
+              Visibility: VISIBLE
+            Title:
+              Visibility: VISIBLE
+            VisualId: 8efc50fc-8654-496a-965a-073bd3f644fd
+        - LineChartVisual:
+            Actions: []
+            ChartConfiguration:
+              DataLabels:
+                Overlap: DISABLE_OVERLAP
+                Visibility: HIDDEN
+              FieldWells:
+                LineChartAggregatedFieldWells:
+                  Category:
+                  - DateDimensionField:
+                      Column:
+                        ColumnName: timestamp
+                        DataSetIdentifier: mediapackage_egress_logs_table
+                      DateGranularity: MINUTE
+                      FieldId: ee1fbe59-fe32-414b-aa80-a3c6b6d39199.timestamp.0.1712308191228
+                      HierarchyId: ee1fbe59-fe32-414b-aa80-a3c6b6d39199.timestamp.0.1712308191228
+                  Colors: []
+                  Values:
+                  - CategoricalMeasureField:
+                      AggregationFunction: COUNT
+                      Column:
+                        ColumnName: request
+                        DataSetIdentifier: mediapackage_egress_logs_table
+                      FieldId: ee1fbe59-fe32-414b-aa80-a3c6b6d39199.request.1.1712308211633
+              SortConfiguration:
+                CategoryItemsLimitConfiguration:
+                  OtherCategories: INCLUDE
+                CategorySort:
+                - FieldSort:
+                    Direction: DESC
+                    FieldId: ee1fbe59-fe32-414b-aa80-a3c6b6d39199.timestamp.0.1712308191228
+                ColorItemsLimitConfiguration:
+                  OtherCategories: INCLUDE
+                SmallMultiplesLimitConfiguration:
+                  OtherCategories: INCLUDE
+              Tooltip:
+                FieldBasedTooltip:
+                  AggregationVisibility: HIDDEN
+                  TooltipFields:
+                  - FieldTooltipItem:
+                      FieldId: ee1fbe59-fe32-414b-aa80-a3c6b6d39199.timestamp.0.1712308191228
+                      Visibility: VISIBLE
+                  - FieldTooltipItem:
+                      FieldId: ee1fbe59-fe32-414b-aa80-a3c6b6d39199.request.1.1712308211633
+                      Visibility: VISIBLE
+                  TooltipTitleType: PRIMARY_VALUE
+                SelectedTooltipType: DETAILED
+                TooltipVisibility: VISIBLE
+              Type: LINE
+            ColumnHierarchies:
+            - DateTimeHierarchy:
+                HierarchyId: ee1fbe59-fe32-414b-aa80-a3c6b6d39199.timestamp.0.1712308191228
+            Subtitle:
+              Visibility: VISIBLE
+            Title:
+              FormatText:
+                RichText: "<visual-title>Total Request\_</visual-title>"
+              Visibility: VISIBLE
+            VisualId: 63dca80c-4295-4373-848f-48c5e1fdcb76
+datasets:
+  mediapackage_egress_logs_table:
+    data:
+      DataSetId: 5dc26f2f-a6b7-44ff-8d3a-767e973a591d
+      Name: mediapackage_egress_logs_table
+      PhysicalTableMap:
+        40148b91-a295-4461-af09-2569e6c2c51a:
+          RelationalTable:
+            DataSourceArn: ${athena_datasource_arn}
+            Catalog: AwsDataCatalog
+            Schema: ${athena_database_name}
+            Name: mediapackage_egress_logs_table
+            InputColumns:
+            - Name: timestamp
+              Type: DATETIME
+            - Name: clientip
+              Type: STRING
+            - Name: processingtime
+              Type: DECIMAL
+            - Name: statuscode
+              Type: STRING
+            - Name: receivedbytes
+              Type: INTEGER
+            - Name: sentbytes
+              Type: INTEGER
+            - Name: method
+              Type: STRING
+            - Name: request
+              Type: STRING
+            - Name: requesttype
+              Type: STRING
+            - Name: protocol
+              Type: STRING
+            - Name: useragent
+              Type: STRING
+            - Name: account
+              Type: STRING
+            - Name: domainname
+              Type: STRING
+            - Name: requestid
+              Type: STRING
+            - Name: channelid
+              Type: STRING
+            - Name: channelarn
+              Type: STRING
+            - Name: endpointid
+              Type: STRING
+            - Name: endpointarn
+              Type: STRING
+            - Name: date
+              Type: STRING
+      LogicalTableMap:
+        ee1fbe59-fe32-414b-aa80-a3c6b6d39199:
+          Alias: mediapackage_egress_logs_table
+          Source:
+            PhysicalTableId: 40148b91-a295-4461-af09-2569e6c2c51a
+      ImportMode: DIRECT_QUERY
+    dependsOn:
+      views:
+      - mediapackage_egress_logs_table
+views:
+  mediapackage_egress_logs_table:
+    data: |-
+      CREATE EXTERNAL TABLE `mediapackage_egress_logs_table`(
+        `timestamp` timestamp,
+        `clientip` string,
+        `processingtime` double,
+        `statuscode` string,
+        `receivedbytes` int,
+        `sentbytes` int,
+        `method` string,
+        `request` string,
+        `requesttype` string,
+        `protocol` string,
+        `useragent` string,
+        `account` string,
+        `domainname` string,
+        `requestid` string,
+        `channelid` string,
+        `channelarn` string,
+        `endpointid` string,
+        `endpointarn` string)
+      PARTITIONED BY (
+        `date` string)
+      ROW FORMAT SERDE
+        'org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe'
+      STORED AS INPUTFORMAT
+        'org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat'
+      OUTPUTFORMAT
+        'org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat'
+      LOCATION
+        '${s3path}'
+      TBLPROPERTIES (
+        'projection.date.format'='yyyy/MM/dd',
+        'projection.date.interval'='1',
+        'projection.date.interval.unit'='DAYS',
+        'projection.date.range'='2024/01/01,NOW',
+        'projection.date.type'='date',
+        'projection.enabled'='true',
+        'storage.location.template'='${s3path}${date}/')
+    parameters:
+      s3path:
+        default: s3://mediapackage-logs-analysis/mediapackage-processed-logs/egress/
+        description: S3 Path for mediapackage_egress_logs_table table
