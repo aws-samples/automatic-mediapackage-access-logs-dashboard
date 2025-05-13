@@ -1,121 +1,128 @@
-# Mediapackage Access Logs Analysis Dashboard
+# AWS MediaPackage Access Logs Analysis Dashboard
 
-This automated dashboard helps media teams gain insights into traffic and requests reaching their AWS MediaPackage deployment. It can also assist with troubleshooting issues.
+This automated solution helps media teams gain valuable insights into traffic patterns and requests reaching their AWS MediaPackage deployment. The dashboard provides comprehensive visualization of both ingress and egress access logs, making it an essential tool for monitoring performance and troubleshooting issues.
 
-## How it looks like
-**Mediapackage Ingress Logs Dashboard**
+## Dashboard Preview
 
-![Mediapackage Ingress Dashbaord](/Images/Ingress_Access_Logs_1.PNG)
+### MediaPackage Ingress Logs Dashboard
 
-![Mediapackage Ingress Dashbaord](/Images/Ingress_Access_Logs_1.PNG)
+![MediaPackage Ingress Dashboard](/Images/Ingress_Access_Logs_1.PNG)
 
-**Mediapackage Egress Logs Dashboard**
+![MediaPackage Ingress Dashboard Details](/Images/Ingress_Access_Logs_2.PNG)
 
-![Mediapackage Egress Dashbaord](/Images/Egress_Access_Logs_1.PNG)
+### MediaPackage Egress Logs Dashboard
 
-![Mediapackage Egress Dashbaord](/Images/Egress_Access_Logs_1.PNG)
+![MediaPackage Egress Dashboard](/Images/Egress_Access_Logs_1.PNG)
+
+![MediaPackage Egress Dashboard Details](/Images/Egress_Access_Logs_2.PNG)
 
 ## Architecture Design 
 
-![architecture](/Images/architecture.png)
+![Architecture Diagram](/Images/architecture.png)
 
-1. AWS MediaPackage Access Logs are sent to Amazon CloudWatch. NB: This step is not a part of the solution and must be performed separately.
-2. These logs are streamed to Amazon Data Firehose through a CloudWatch subscription filter.
-3. Data transformations are applied to the incoming log records by Data Firehose using a Lambda function. The buffered output is then sent to an existing S3 bucket in Parquet format.
-4. Using AWS Glue Data Catalog to retrieve Ingress and Egress Access logs tables metadata, Athena queries the transformed logs from S3.
-5. Amazon Quicksight is then used to visualize the MediaPackage Access Logs.
+The solution follows this data flow:
 
+1. AWS MediaPackage Access Logs are sent to Amazon CloudWatch. **Note:** This initial configuration must be performed separately and is not part of this deployment.
+2. Logs are streamed to Amazon Data Firehose through CloudWatch subscription filters.
+3. Data transformations are applied to the incoming log records by Data Firehose using a Lambda function. The processed data is then buffered and delivered to an S3 bucket in Parquet format for efficient storage and querying.
+4. AWS Glue Data Catalog maintains metadata for both Ingress and Egress Access logs tables, enabling Amazon Athena to efficiently query the transformed logs from S3.
+5. Amazon QuickSight visualizes the MediaPackage Access Logs through interactive dashboards.
 
-# Deployment
+## Deployment Instructions
 
-* Note: The S3 bucket where Mediapackage Access logs are stored has to be in the same region as Athena used in this project to avoid extra costs related to inter-region data transfer.
+> **Important:** The S3 bucket where MediaPackage Access logs are stored must be in the same region as Athena to avoid additional costs related to inter-region data transfer.
  
-**Step1: AWS Mediapackage Access Logs Data Set Deployment**
+### Step 1: Deploy AWS MediaPackage Access Logs Data Pipeline
 
 1. Sign in to the **AWS Management Console**
-2. Navigate to the **AWS CloudFormation **console >** Create Stack** > **“With new resources” **
+2. Navigate to **AWS CloudFormation** > **Create Stack** > **With new resources**
+3. Download the AWS CloudFormation template [**`cloudformation/mediapackage_logs_analysis.yaml`**](./cloudformation/mediapackage_logs_analysis.yaml) from this repository
+4. In the CloudFormation create wizard, upload the template file
+5. For the **`S3BucketName`** parameter, enter the name of an existing S3 bucket where you want to store AWS MediaPackage Access logs
+6. Specify a **Stack name** and choose **Next**
+7. Leave the **Configure stack options** at default values and choose **Next**
+8. Review the details and under **Capabilities**, select the checkbox for **"I acknowledge that AWS CloudFormation might create IAM resources with custom names"**
+9. Choose **Submit**
 
-* Note: the template will ask you to enter an S3 bucket name. The S3 bucket where access logs will stored has to be created previously.
+After successful stack creation, the following resources will be deployed:
+- 2 Amazon CloudWatch Subscriptions to Kinesis Firehose
+- AWS Glue Database
+- 4 AWS Glue Tables
+- 2 Kinesis Firehose delivery streams
+- Lambda function for data transformation
+- Required IAM Policies and roles
 
-3. Download the AWS CloudFormation template **"MediaPackage_Logs_Analysis_CFM_Template.txt"** file from this git repository. In the create wizard specify the **MediaPackage_Logs_Analysis_CFM_Template.txt**  template.
-4. fill the following parameter **"S3BucketName"** with a bucket name where you store AWS Mediapackage Access logs.
-5. Specify a **“Stack name” **and choose Next
-6. Leave the **“Configure stack options”** at default values and choose Next
-7. Review the details on the final screen and under **“Capabilities”** check the box for **“I acknowledge that AWS CloudFormation might create IAM resources with custom names”**
-8. Choose **Submit**
+### Step 2: Set Up Amazon QuickSight
 
-Once the Stack is created successfully, you will see the following resources deployed:
-2 Amazon CloudWatch Subscriptions to Kinesis Firehose, AWS Glue DB, 4 AWS Glue Tables, 2 Kinesis Firehose delivery streams, Lambda function, IAM Policies and roles.
-
-
-**Step2 : Prepare Amazon QuickSight**
-
- Amazon QuickSight is the AWS Business Intelligence tool that will allow you to not only view the Standard AWS provided insights into all of your accounts, but will also allow to produce new versions of the Dashboards we provide or create something entirely customized to you. If you are already a regular Amazon QuickSight user you can skip these steps. 
+Amazon QuickSight is AWS's Business Intelligence tool that allows you to visualize your MediaPackage access logs data. If you're already using QuickSight, you can skip to Step 3.
 
 1. Log into your AWS Account and search for QuickSight in the list of Services
-2. You will be asked to sign up before you will be able to use it
-3. After pressing the Sign up button you will be presented with 2 options, please ensure you select the Enterprise Edition during this step
-4. Select continue and you will need to fill in a series of options in order to finish creating your account.
-    1. Ensure you select the region that is most appropriate based on where your S3 Bucket is located containing your AWS WAF Logs  report files.
-5. Enable the Amazon S3 option and select the bucket where your AWS Mediapackage Access logs are stored 
+2. Sign up for QuickSight if you haven't already
+3. When prompted, select the **Enterprise Edition**
+4. Select **Continue** and complete the account creation process:
+   - Choose the AWS region where your S3 bucket containing MediaPackage Access logs is located
+5. In the QuickSight permissions section, enable access to **Amazon S3** and select the bucket where your MediaPackage Access logs are stored
 
-**Step3 : Deploy the Dashboard**
+### Step 3: Deploy the Dashboards
 
-We will use the **mediapackage_ingress_logs_table-analysis.yaml** and **mediapackage_egress_logs_table-analysis.yaml** templates to deploy the Mediapackage Ingress Access logs and Mediapackage Egresss Access logs dashboards in quicksight. These templates will also create 2 datasets for ingress and egress access logs in Amazon Quicksight.
+We'll use the provided YAML templates to deploy both the Ingress and Egress Access logs dashboards in QuickSight.
 
-1. Open you favorite terminal and install the CID-CMD Tool using the following:
+#### Install the CID-CMD Tool
 
-`pip3 install cid-cmd`
+```bash
+pip3 install cid-cmd
+```
 
-Let's start with the **mediapackage_ingress_logs_table-analysis.yaml** deployement!
+#### Deploy the Ingress Logs Dashboard
 
-2. Open your favorite terminal, under the directory where you saved **mediapackage_ingress_logs_table-analysis.yaml** template and run the following cli:
+1. Open your terminal and navigate to the directory containing the template files
+2. Run the following command to deploy the [ingress logs dashboard template](./dashboards/mediapackage_ingress_logs.yaml):
 
-`cid-cmd deploy --resources ./mediapackage_ingress_logs_table-analysis.yaml`
+```bash
+cid-cmd deploy --resources ./dashboards/mediapackage_ingress_logs.yaml
+```
 
-3. during the creation you will be prompted to select: 
+3. When prompted, provide the following information:
+   - For `[dashboard-id]`, press **Enter** to select the default option
+   - For `[athena-database]`, press **Enter** to select `mediapackage_logs_db`
+   - For `[s3path]`, enter the S3 URI where your Ingress MediaPackage Access logs are stored (e.g., `s3://your-bucket-name/mediapackage-processed-logs/ingress/`)
 
-? [dashboard-id] Please select dashboard to install: [mediapackage-ingress-logs-table-analysis] mediapackage_ingress_logs_table analysis ==>  **Press enter**
+Upon successful deployment, you'll see a confirmation message with a link to access your dashboard.
 
-? [athena-database] Select AWS Athena database to use: mediapackage_logs_db ==> **Press enter**
+#### Deploy the Egress Logs Dashboard
 
-? [s3path] Required parameter: s3path (S3 Path for mediapackage_ingress_logs_table table): s3://mediapackage-logs-analysis/mediapackage-processed-logs/ingress/ ==> **change the S3 URI to the S3 Bucket's URI where your Ingress Mediapackage Access logs are stored**
+1. In the same terminal, run the following command to deploy the [egress logs dashboard template](./dashboards/mediapackage_egress_logs.yaml):
 
-after a successful run , the output will be :
+```bash
+cid-cmd deploy --resources ./dashboards/mediapackage_egress_logs.yaml
+```
 
-#######
-####### Congratulations!
-####### mediapackage_ingress_logs_table analysis is available at: https://us-east-1.quicksight.aws.amazon.com/sn/dashboards/mediapackage-ingress-logs-table-analysis
-#######
+2. When prompted, provide the following information:
+   - For `[dashboard-id]`, press **Enter** to select the default option
+   - For `[athena-database]`, press **Enter** to select `mediapackage_logs_db`
+   - For `[s3path]`, enter the S3 URI where your Egress MediaPackage Access logs are stored (e.g., `s3://your-bucket-name/mediapackage-processed-logs/egress/`)
 
+Upon successful deployment, you'll see a confirmation message with a link to access your dashboard.
 
-Let's now deploy the **mediapackage_egress_logs_table-analysis.yaml** !
+## Using the Dashboards
 
-4. Open your favorite terminal, under the directory where you saved **mediapackage_egress_logs_table-analysis.yaml** template and run the following cli:
+Once deployed, you can access your dashboards through the QuickSight console or via the direct links provided in the deployment output. The dashboards provide:
 
-`cid-cmd deploy --resources ./mediapackage_egress_logs_table-analysis.yaml`
+- Request volume analysis
+- HTTP status code distribution
+- Geographic distribution of requests
+- Client device and browser analytics
+- Error rate monitoring
+- Performance metrics
 
-5. during the creation you will be prompted to select: 
+## Troubleshooting
 
-? [dashboard-id] Please select dashboard to install: [mediapackage-egress-logs-table-analysis] mediapackage_egress_logs_table analysis ==>  **Press enter**
+If you encounter issues during deployment:
 
-? [athena-database] Select AWS Athena database to use: mediapackage_logs_db ==> **Press enter**
+1. Verify that your S3 bucket exists and is in the same region as Athena
+2. Check that you have the necessary permissions to create CloudFormation stacks and QuickSight resources
+3. Ensure MediaPackage logs are properly configured to send to CloudWatch
 
-? [s3path] Required parameter: s3path (S3 Path for mediapackage_egress_logs_table table): s3://mediapackage-logs-analysis/mediapackage-processed-logs/egress/ ==> **change the S3 URI to the S3 Bucket's URI where your Egress Mediapackage Access logs are stored**
+## Contributing
 
-after a successful run , the output will be :
-
-#######
-####### Congratulations!
-####### mediapackage_egress_logs_table analysis is available at: https://us-east-1.quicksight.aws.amazon.com/sn/dashboards/mediapackage-egress-logs-table-analysis
-#######
-
-You can now start analysing Mediapackage Access logs...
-
-
-
-
-
-
-
-
+Contributions to improve this solution are welcome. Please feel free to submit pull requests or open issues to suggest enhancements.
